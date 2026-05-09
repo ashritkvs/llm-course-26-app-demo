@@ -2,8 +2,6 @@
 
 > AI-powered git archaeology — turn weeks of code archaeology into a 30-second story.
 
-![alt text](image.png)
-
 ## Problem
 
 - Developers spend ~⅓ of their time on code **maintenance**, not new features.
