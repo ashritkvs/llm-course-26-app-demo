@@ -25,7 +25,7 @@ category: education
 # data-analysis, developer-tools, education, enterprise-tools,
 # finance, health, lifestyle, productivity, research, other
 
-tagline: SocraticTutor — learning through questions, never answers.
+tagline: Built to Teach Reasoning, Not Just Solutions
 
 featuredEligible: true
 # Set to false only if you don't want your project featured on the home page.
@@ -42,19 +42,19 @@ shortTitle: "Socratic Tutor"
 # Fill in only if your full title is long (25+ characters).
 # Example: "Multi-Agent Meeting Intelligence System" → "Meeting Intelligence"
 
-studentId: ""
+studentId: "117347641"
 # Your 9-digit Stony Brook ID, in quotes. Example: "123456789"
 # Used for grading. Not displayed on the site.
 
-videoUrl: ""
+videoUrl: "https://drive.google.com/file/d/1HHrckREP82rpWe6hihAEaOqTrdzSVqEs/view?usp=drive_link"
 # Google Drive share link to your demo video.
 # You can leave this empty in your first PR and add it once your video is ready.
 
-thumbnail: ""
+thumbnail: "https://drive.google.com/file/d/1GJLewr5UZ5_aNmW3gDLXhWPzrfQjN3Ks/view?usp=sharing"
 # Upload your thumbnail image to Google Drive and paste the share link here.
 # You can leave this empty in your first PR and add it once your image is ready.
 
-githubUrl: ""
+githubUrl: "https://github.com/AayushNair10/SocraticTutor"
 # Only if you host your project's source code in your own GitHub repo.
 ---
 
