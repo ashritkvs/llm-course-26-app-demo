@@ -12201,3 +12201,41 @@ Zoom Workplace.lnk | Project
 2026-05-10 16:01:58 | INFO     | desktop_cleaner.actions | [2026-05-10 16:01:58] MOVE | file=C:\Users\ideac\OneDrive\Desktop\undergrad transcript.pdf | category=Documents
 2026-05-10 16:01:58 | INFO     | src.organizer | Organise complete. moved=31 skipped=0 errors=0
 2026-05-10 16:11:30 | INFO     | gui.app | MainWindow initialised.
+2026-05-10 16:48:55 | INFO     | gui.app | MainWindow initialised.
+2026-05-10 16:49:05 | INFO     | src.scanner | Scanning desktop at: C:\Users\ideac\OneDrive\Desktop
+2026-05-10 16:49:05 | INFO     | src.scanner | Scan complete. Found 9 items.
+2026-05-10 16:49:05 | INFO     | src.classifier | LLMClassifier ready (model: llama3.2)
+2026-05-10 16:49:07 | INFO     | httpx | HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2026-05-10 16:49:07 | INFO     | src.classifier | LLM raw response:
+among-us-sus-cursed.gif | NONE
+CurseForge.lnk | Games
+Discord.lnk | Games
+Epic Games Launcher.lnk | Games
+GitHub Desktop.lnk | Games
+Resume_Grad.pdf | NONE
+Roblox Player.lnk | Games
+Steam.lnk | Games
+stewie.png | NONE
+2026-05-10 16:49:07 | INFO     | src.deletion_checker | Deletion check complete. 0 / 9 files flagged (threshold: 6 days).
+2026-05-10 16:49:15 | INFO     | src.scanner | Scanning desktop at: C:\Users\ideac\OneDrive\Desktop
+2026-05-10 16:49:15 | INFO     | src.scanner | Scan complete. Found 9 items.
+2026-05-10 16:49:15 | INFO     | src.deletion_checker | Deletion check complete. 0 / 9 files flagged (threshold: 6 days).
+2026-05-10 16:49:34 | INFO     | gui.app | MainWindow initialised.
+2026-05-10 16:49:37 | INFO     | src.scanner | Scanning desktop at: C:\Users\ideac\OneDrive\Desktop
+2026-05-10 16:49:37 | INFO     | src.scanner | Scan complete. Found 9 items.
+2026-05-10 16:49:37 | INFO     | src.classifier | LLMClassifier ready (model: llama3.2)
+2026-05-10 16:49:38 | INFO     | httpx | HTTP Request: POST http://127.0.0.1:11434/api/generate "HTTP/1.1 200 OK"
+2026-05-10 16:49:38 | INFO     | src.classifier | LLM raw response:
+among-us-sus-cursed.gif | Games
+CurseForge.lnk | Games
+Discord.lnk | Games
+Epic Games Launcher.lnk | Games
+GitHub Desktop.lnk | Games
+Resume_Grad.pdf | NONE
+Roblox Player.lnk | Games
+Steam.lnk | Games
+stewie.png | NONE
+2026-05-10 16:49:38 | INFO     | src.deletion_checker | Deletion check complete. 0 / 9 files flagged (threshold: 6 days).
+2026-05-10 16:49:42 | INFO     | src.organizer | MOVE C:\Users\ideac\OneDrive\Desktop\Resume_Grad.pdf → C:\Users\ideac\OneDrive\Desktop\Documents\Resume_Grad.pdf
+2026-05-10 16:49:42 | INFO     | desktop_cleaner.actions | [2026-05-10 16:49:42] MOVE | file=C:\Users\ideac\OneDrive\Desktop\Resume_Grad.pdf | category=Documents
+2026-05-10 16:49:42 | INFO     | src.organizer | Organise complete. moved=1 skipped=0 errors=0
