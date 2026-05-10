@@ -1,0 +1,6 @@
+{
+  "age_threshold_days": 3,
+  "log_level": "INFO",
+  "output_dir": "desktop",
+  "deletion_review_folder": "Review for Deletion"
+}
