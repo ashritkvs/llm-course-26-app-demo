@@ -24,7 +24,7 @@ shortTitle: "Adaptive Fitness"
 
 studentId: ""
 
-videoUrl: "https://drive.google.com/file/d/1ASB95uqufbepudB8Bfu7b3lNvEkNsQSN/view?usp=drive_link"
+videoUrl: "https://drive.google.com/file/d/1VUbPFBW-tvd1I7j4cGm3f4G4bQe10IhY/view?usp=drive_link"
 
 thumbnail: "https://drive.google.com/file/d/1p2pTuQIRuN5VnYSENs2hkWKgJAaMQHlV/view?usp=drive_link"
 
