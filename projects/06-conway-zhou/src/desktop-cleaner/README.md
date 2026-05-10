@@ -1,62 +1,54 @@
 # Desktop Cleaner
 
-A Windows desktop organisation tool that uses Anthropic Claude LLM to intelligently sort and categorise every file, shortcut, and application on your desktop into labelled folders.
+A Windows desktop organisation tool that uses a local Llama 3.2 model (via Ollama) to intelligently sort and categorise every file, shortcut, and application on your desktop into labelled folders.
 
 ## Features
 
 - Scans your Windows desktop for all files, shortcuts, and applications
-- Uses Claude AI (claude-sonnet-4-6) to intelligently categorise files
-- Supports user-defined custom categories (Pass 1) with auto-categorisation fallback (Pass 2)
-- Preview changes before applying (dry-run mode)
-- Flags old files (not accessed in N days) for optional review
+- Uses Llama 3.2 (local, via Ollama) to intelligently categorise files — no API key, no rate limits
+- Supports user-defined custom categories (Pass 1) with extension-based auto-categorisation fallback (Pass 2)
+- Flags old files (not accessed in N days) for optional review, with a popup notification after each scan
 - NEVER permanently deletes files — only moves to a "Review for Deletion" folder
 - Full GUI with PyQt5
-- REST API via FastAPI for programmatic access
 - All actions logged to logs/cleaner_log.txt
 
 ## Setup
 
-1. Install dependencies:
+1. Install and start [Ollama](https://ollama.com), then pull the model:
+   ```
+   ollama pull llama3.2
+   ```
+
+2. Install Python dependencies (run `setup.bat` or manually):
    ```
    pip install -r requirements.txt
    ```
 
-2. Configure your Anthropic API key in `.env`:
-   ```
-   ANTHROPIC_API_KEY=your_actual_api_key
-   ```
-
-3. (Optional) Edit `config/settings.json` to adjust age threshold and other settings.
+3. (Optional) Edit `config/settings.json` to adjust the age threshold and other settings.
 
 ## Running
 
-### GUI Mode (default)
 ```
 python src/main.py
 ```
 
-### API Mode
-```
-python src/main.py --mode api
-```
-Then visit http://localhost:8000/docs for the interactive API documentation.
-
 ## Configuration
 
-- `config/settings.json` — application settings (age threshold, dry run, log level, etc.)
+- `config/settings.json` — application settings (age threshold, log level, review folder name, etc.)
 - `config/user_categories.json` — your custom category definitions
 
 ## How It Works
 
 1. **Scan**: Scans the Windows desktop using pywin32 for accurate path detection.
-2. **Classify (Pass 1)**: For each file, asks Claude if it fits any of your user-defined categories.
-3. **Classify (Pass 2)**: For unmatched files, asks Claude to auto-generate an appropriate category.
-4. **Review**: Shows you a tree of planned folder moves before anything happens.
-5. **Organise**: Creates folders on the desktop and moves files (unless dry-run mode is on).
-6. **Deletion Review**: Flags files not accessed in N days and lets you optionally move them to a review folder.
+2. **Classify (Pass 1)**: Sends all filenames to Llama 3.2 in one batch call to match against your user-defined categories.
+3. **Classify (Pass 2)**: Files that didn't match any user category are auto-categorised by file extension (Documents, Images, Shortcuts, etc.).
+4. **Deletion Notification**: If any files haven't been accessed within the configured threshold, a popup notifies you after the scan.
+5. **Review**: Shows a tree of planned folder moves — uncheck any folder to leave those files on the desktop.
+6. **Organise**: Creates folders on the desktop and moves the checked files.
+7. **Deletion Review**: Optionally move stale files to a "Review for Deletion" folder via the Review Deletions button.
 
 ## Safety
 
-- Dry-run mode previews all operations without moving anything
+- All moves require explicit confirmation before anything happens
 - Files flagged for deletion are moved to a "Review for Deletion" folder, never permanently deleted
 - All operations are logged with timestamps
