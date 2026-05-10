@@ -1,0 +1,393 @@
+#lucent-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(400px, calc(100vw - 32px));
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 2147483647;
+  padding: 20px 18px;
+  border-left: 1px solid #d7d7cf;
+  background: linear-gradient(180deg, #fffdf7 0%, #f5efe0 100%);
+  box-shadow: -18px 0 40px rgba(31, 31, 25, 0.18);
+  color: #1f1f19;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  transform: translateX(100%);
+  transition: transform 180ms ease;
+}
+
+#lucent-sidebar.lucent-open {
+  transform: translateX(0);
+}
+
+#lucent-launcher {
+  position: fixed;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  z-index: 2147483646;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  border: 0;
+  border-radius: 16px 0 0 16px;
+  background: #1f6b4f;
+  color: #fffdf7;
+  padding: 12px 14px 12px 16px;
+  box-shadow: 0 14px 30px rgba(31, 31, 25, 0.2);
+  cursor: pointer;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+#lucent-launcher:hover {
+  transform: translateY(-50%) translateX(-2px);
+}
+
+#lucent-launcher.lucent-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lucent-launcher-label {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.lucent-launcher-subtitle {
+  font-size: 11px;
+  opacity: 0.84;
+}
+
+#lucent-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+#lucent-header-copy {
+  min-width: 0;
+}
+
+#lucent-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#lucent-eyebrow {
+  margin: 0 0 4px;
+  color: #7b5b23;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+#lucent-title {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+#lucent-scan-button {
+  border: 0;
+  border-radius: 999px;
+  background: #1f6b4f;
+  color: #fffdf7;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#lucent-scan-button:hover {
+  background: #17513b;
+}
+
+#lucent-close-button {
+  border: 1px solid rgba(31, 31, 25, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #49453d;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#lucent-close-button:hover {
+  background: #ffffff;
+}
+
+#lucent-content {
+  display: grid;
+  gap: 12px;
+}
+
+.lucent-status,
+.lucent-muted {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.lucent-muted {
+  color: #645f56;
+  font-size: 13px;
+}
+
+.lucent-card,
+.lucent-score-block {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(31, 31, 25, 0.08);
+}
+
+.lucent-card h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.lucent-card p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.lucent-card-error {
+  border-color: #d76551;
+  background: #fff1ed;
+}
+
+.lucent-score-block {
+  text-align: center;
+}
+
+.lucent-score-green {
+  background: #e9f7ef;
+}
+
+.lucent-score-amber {
+  background: #fff4db;
+}
+
+.lucent-score-orange {
+  background: #ffe8d7;
+}
+
+.lucent-score-red {
+  background: #ffe4e1;
+}
+
+.lucent-score-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #645f56;
+}
+
+.lucent-score-value {
+  margin: 0;
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.lucent-score-verdict {
+  margin: 8px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.lucent-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.lucent-list-item {
+  margin-bottom: 8px;
+  line-height: 1.45;
+}
+
+.lucent-list-item span {
+  display: block;
+  color: #49453d;
+}
+
+.lucent-note-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.lucent-note-item {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(31, 31, 25, 0.08);
+  line-height: 1.4;
+}
+
+.lucent-note-item strong {
+  display: block;
+}
+
+.lucent-note-item-positive {
+  background: #edf7f1;
+  border-color: rgba(31, 107, 79, 0.14);
+  color: #17513b;
+}
+
+.lucent-note-item-neutral {
+  background: #fbf5e8;
+  border-color: rgba(123, 91, 35, 0.12);
+  color: #7b5b23;
+}
+
+.lucent-note-item-negative {
+  background: #fff1e4;
+  border-color: rgba(212, 122, 38, 0.16);
+  color: #a85b1a;
+}
+
+.lucent-note-item-negative-strong {
+  background: #fde8e5;
+  border-color: rgba(200, 76, 59, 0.18);
+  color: #a33b2d;
+}
+
+.lucent-location-checks {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.lucent-location-check {
+  border: 1px solid rgba(31, 31, 25, 0.1);
+  border-left: 4px solid #c79d32;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+}
+
+.lucent-location-check-green {
+  border-left-color: #1f6b4f;
+}
+
+.lucent-location-check-amber {
+  border-left-color: #c79d32;
+}
+
+.lucent-location-check-orange {
+  border-left-color: #d47a26;
+}
+
+.lucent-location-check-red {
+  border-left-color: #c84c3b;
+}
+
+.lucent-location-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.lucent-location-summary::-webkit-details-marker {
+  display: none;
+}
+
+.lucent-location-title {
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.lucent-location-check-green .lucent-location-title {
+  color: #17513b;
+}
+
+.lucent-location-check-amber .lucent-location-title {
+  color: #8a6517;
+}
+
+.lucent-location-check-orange .lucent-location-title {
+  color: #a85b1a;
+}
+
+.lucent-location-check-red .lucent-location-title {
+  color: #a33b2d;
+}
+
+.lucent-location-badge {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.lucent-location-badge-green {
+  background: #e5f4ec;
+  color: #17513b;
+}
+
+.lucent-location-badge-amber {
+  background: #fff3d6;
+  color: #8a6517;
+}
+
+.lucent-location-badge-orange {
+  background: #ffe8d7;
+  color: #a85b1a;
+}
+
+.lucent-location-badge-red {
+  background: #fde6e3;
+  color: #a33b2d;
+}
+
+.lucent-location-body {
+  padding: 0 12px 12px;
+  border-top: 1px solid rgba(31, 31, 25, 0.08);
+}
+
+.lucent-location-body p {
+  margin: 8px 0 0;
+}
+
+.lucent-location-destination {
+  font-weight: 600;
+  color: #3f3a33;
+}
+
+.lucent-review-toggle {
+  margin-top: 10px;
+  border-top: 1px solid rgba(31, 31, 25, 0.08);
+  padding-top: 10px;
+}
+
+.lucent-review-toggle-summary {
+  cursor: pointer;
+  color: #7b5b23;
+  font-size: 13px;
+  font-weight: 700;
+  list-style: none;
+}
+
+.lucent-review-toggle-summary::-webkit-details-marker {
+  display: none;
+}
+
+.lucent-review-toggle .lucent-list {
+  margin-top: 10px;
+}
