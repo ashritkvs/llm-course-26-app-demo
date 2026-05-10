@@ -1,8 +1,4 @@
-fastapi
-uvicorn
 PyQt5
 pywin32
 ollama
-pydantic
 pytest
-httpx
