@@ -1,0 +1,24 @@
+name: Validate project.md
+
+on:
+  pull_request:
+    paths:
+      - "projects/**"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install python-frontmatter pyyaml
+
+      - name: Validate all project.md files
+        run: python scripts/build_s26_json.py --check --verbose

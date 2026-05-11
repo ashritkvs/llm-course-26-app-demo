@@ -1,0 +1,29 @@
+{
+  "model_name": "test_model",
+  "model_version": "1.0.0",
+  "training_timestamp": "20260306_143458",
+  "model_file": "test_model_20260306_143458.pkl",
+  "metrics": {
+    "accuracy": 0.85,
+    "roc_auc": 0.9
+  },
+  "feature_importance": {
+    "feature_8": 0.8795251573615583,
+    "feature_9": 0.8365909337254597,
+    "feature_10": 0.7734857405313286,
+    "feature_6": 0.5552189702383681,
+    "feature_0": 0.5382632145110621,
+    "feature_2": 0.40180515718883675,
+    "feature_3": 0.26257301801931243,
+    "feature_4": 0.249047206108991,
+    "feature_7": 0.15313495690147413,
+    "feature_5": 0.1325187827957614,
+    "feature_1": 0.11102758180601946,
+    "feature_11": 0.05963429424824761,
+    "feature_12": 0.05471856992838685
+  },
+  "training_config": {
+    "random_state": 42,
+    "cv_folds": 5
+  }
+}

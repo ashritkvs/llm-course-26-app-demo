@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DBSchemaViz — SQL to Visual Schema</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ── Header ───────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🗺️</div>
+    <div class="logo-text">DB<span>Schema</span>Viz</div>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;">
+    <span class="badge">v1.0 · free · no login</span>
+  </div>
+</header>
+
+<!-- ── Main Layout ──────────────────────────────────────────── -->
+<main>
+
+  <!-- LEFT PANEL — SQL Editor -->
+  <div class="left-panel">
+
+    <div class="panel-header">
+      <span class="panel-title">SQL Input</span>
+      <span class="badge" style="font-size:10px;">CREATE TABLE</span>
+    </div>
+
+    <div class="editor-area">
+      <textarea
+        id="sql-input"
+        spellcheck="false"
+        placeholder="-- Paste your CREATE TABLE statements here
+-- Supports: PostgreSQL, MySQL, SQLite, MSSQL
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  name VARCHAR(100),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+..."></textarea>
+    </div>
+
+    <!-- Example quick-load buttons -->
+    <div class="examples-bar">
+      <span class="examples-label">Examples:</span>
+      <button class="example-btn" onclick="loadExample('ecommerce')">E-Commerce</button>
+      <button class="example-btn" onclick="loadExample('blog')">Blog</button>
+      <button class="example-btn" onclick="loadExample('saas')">SaaS App</button>
+      <button class="example-btn" onclick="loadExample('hospital')">Hospital</button>
+      <button class="example-btn" onclick="loadExample('multischema')">Multi-Schema</button>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn-primary" id="visualize-btn" onclick="visualize()">
+        <span>⚡</span> Visualize Schema
+      </button>
+      <button class="btn-secondary" onclick="clearAll()">Clear</button>
+    </div>
+
+    <!-- Stats (shown after first visualization) -->
+    <div class="stats-bar" id="stats-bar" style="display:none">
+      <div class="stat">
+        <div class="stat-val"   id="stat-tables">0</div>
+        <div class="stat-label">Tables</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val"   id="stat-cols">0</div>
+        <div class="stat-label">Columns</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val"   id="stat-fks">0</div>
+        <div class="stat-label">Relations</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val"   id="stat-pks">0</div>
+        <div class="stat-label">PKs</div>
+      </div>
+    </div>
+
+  </div><!-- /left-panel -->
+
+  <!-- RIGHT PANEL — Canvas -->
+  <div class="right-panel">
+
+    <div class="canvas-toolbar">
+      <div class="toolbar-left">
+        <button class="tool-btn"        onclick="autoLayout()">⟳ Auto Layout</button>
+        <button class="tool-btn"        onclick="zoomFit()">⊡ Fit</button>
+        <button class="tool-btn active" id="show-types-btn" onclick="toggleTypes()">⊞ Types</button>
+        <button class="tool-btn"        onclick="toggleTheme()">◑ Theme</button>
+      </div>
+      <div class="toolbar-right">
+        <button class="tool-btn" onclick="exportSVG()">↓ Export SVG</button>
+        <button class="tool-btn" onclick="exportPNG()">↓ Export PNG</button>
+      </div>
+    </div>
+
+    <div id="canvas-wrapper">
+      <div id="canvas">
+
+        <!-- SVG layer for relationship lines (rendered above canvas, below nodes) -->
+        <svg id="schema-svg" width="100%" height="100%"></svg>
+
+        <!-- Empty state (hidden after first render) -->
+        <div class="empty-state" id="empty-state">
+          <div class="empty-icon">🗄️</div>
+          <div class="empty-title">No schema yet</div>
+          <div class="empty-sub">Paste SQL CREATE TABLE statements on the left and click Visualize</div>
+        </div>
+
+        <!-- Legend (bottom-right corner of canvas) -->
+        <div class="legend" id="legend" style="display:none">
+          <div class="legend-item">
+            <div class="legend-dot pk" style="background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.3)">K</div>
+            Primary Key
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot fk" style="background:rgba(124,58,237,0.2);color:#a78bfa;border:1px solid rgba(124,58,237,0.3)">F</div>
+            Foreign Key
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot idx" style="background:rgba(56,189,248,0.2);color:#38bdf8;border:1px solid rgba(56,189,248,0.3)">I</div>
+            Indexed / Unique
+          </div>
+          <div class="legend-item" style="gap:6px;">
+            <svg width="28" height="14" viewBox="0 0 28 14">
+              <line x1="1"  y1="2"  x2="1"  y2="12" stroke="#a78bfa" stroke-width="2"   stroke-linecap="round"/>
+              <line x1="4"  y1="2"  x2="4"  y2="12" stroke="#a78bfa" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+              <line x1="4"  y1="7"  x2="22" y2="7"  stroke="#a78bfa" stroke-width="2"   stroke-linecap="round"/>
+              <polygon points="16,4 24,7 16,10 18,7" fill="#a78bfa"/>
+            </svg>
+            child → parent (FK)
+          </div>
+        </div>
+
+      </div><!-- /canvas -->
+    </div><!-- /canvas-wrapper -->
+
+    <!-- Schema health analysis (shown after first visualization) -->
+    <div class="analysis-panel" id="analysis-panel">
+      <div class="analysis-item">
+        <div class="analysis-label">Orphan Tables</div>
+        <div class="analysis-val" id="a-orphans">—</div>
+      </div>
+      <div class="analysis-item">
+        <div class="analysis-label">Nullable FKs</div>
+        <div class="analysis-val" id="a-nullfks">—</div>
+      </div>
+      <div class="analysis-item">
+        <div class="analysis-label">Tables w/o PK</div>
+        <div class="analysis-val" id="a-nopk">—</div>
+      </div>
+      <div class="analysis-item">
+        <div class="analysis-label">Schema Health</div>
+        <div class="analysis-val ok" id="a-health">—</div>
+      </div>
+    </div>
+
+  </div><!-- /right-panel -->
+
+</main>
+
+<!-- ── Loading Overlay ──────────────────────────────────────── -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">Parsing schema...</div>
+  <div class="loading-sub">Detecting tables, columns &amp; relationships</div>
+</div>
+
+<!-- ── Tooltip (column hover) ───────────────────────────────── -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- ── Error Toast ──────────────────────────────────────────── -->
+<div class="error-toast" id="error-toast"></div>
+
+<!-- ── Scripts (order matters) ──────────────────────────────── -->
+<script src="parser.js"></script>
+<script src="examples.js"></script>
+<script src="renderer.js"></script>
+
+</body>
+</html>

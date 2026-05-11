@@ -1,0 +1,247 @@
+Build a polished full-stack web app called UniFlow: AI-Powered Unified Course Assistant.
+
+Context:
+This is for my AMS 691 App Building with AI/LLM course demo submission. The project should be a working prototype for a course showcase website. It should be impressive, demo-ready, and honest: it should use sample data and paste-input data instead of requiring real Brightspace, Discord, Google Drive, or professor feedback form integrations.
+
+Use:
+- Next.js
+- TypeScript
+- Tailwind CSS
+- Clean dark dashboard UI
+- Teal/blue accent colors
+- Responsive layout
+- Professional SaaS-style interface
+
+Main idea:
+Students manage course information across multiple scattered platforms:
+- Brightspace announcements
+- Discord discussions
+- Google Drive documents
+- Quizzes / assignments
+- Peer presentation feedback forms
+
+UniFlow should unify these scattered updates into one AI-powered dashboard that summarizes announcements, extracts tasks/deadlines, answers course-related questions, and helps students write structured peer feedback after class presentations.
+
+Important:
+Do NOT require real Brightspace, Discord, Google Drive, or Google Forms API integration.
+Build a complete working prototype using:
+- realistic demo/sample data
+- user paste input
+- localStorage for persistence
+- fallback demo AI output when no API key is available
+
+Core pages:
+
+1. Dashboard
+Create a main dashboard showing:
+- weekly priority summary
+- missed deadlines
+- upcoming deadlines
+- urgent tasks
+- platform/source breakdown
+- recent course updates
+- AI-generated weekly action plan
+- quick button: “What should I complete this week?”
+
+2. Sources Page
+Create a page where users can manage course sources:
+- Brightspace card
+- Discord card
+- Google Drive card
+- Quiz / Assignment card
+- Presentation Feedback card
+
+Each source should show:
+- source name
+- short description
+- status badge
+- example content
+- paste-input box where user can paste announcement or course text
+- button to load realistic sample AMS-style course data
+- button to analyze pasted data
+
+3. Tasks Page
+Create a task-management page showing extracted tasks:
+- task title
+- source platform
+- due date
+- priority
+- status
+- short explanation
+- confidence score
+- filter by source
+- filter by priority
+- filter by status
+- mark task complete / incomplete
+
+Example tasks:
+- Submit demo video by May 10
+- Upload thumbnail image to Google Drive
+- Create project.md
+- Push source code to GitHub
+- Complete peer feedback form after presentation
+- Review classmates’ app demos
+
+4. AI Assistant Page
+Create a chat-style assistant page.
+The user should be able to ask:
+- “What should I complete this week?”
+- “What deadlines am I missing?”
+- “Summarize my course updates.”
+- “What do I need for the app demo submission?”
+- “Which presentations still need feedback?”
+- “Help me write feedback for this student’s presentation.”
+
+The assistant should answer using the loaded sample/pasted course data.
+If no real LLM API key is configured, return high-quality realistic demo responses.
+
+5. Presentation Feedback Page
+Add a dedicated page called “Feedback Helper” because in this course we also need to submit reviews after each student presentation.
+
+This page should help students create clear feedback after watching classmates’ presentations.
+
+Features:
+- Form fields:
+  - presenter name
+  - project/app title
+  - what was best about the presentation
+  - one improvement suggestion
+  - clarity rating from 1 to 5
+  - demo quality rating from 1 to 5
+  - usefulness/impact rating from 1 to 5
+  - optional notes
+
+- AI button: “Polish Feedback”
+  It should convert rough notes into a concise respectful review.
+
+- Output format:
+  Best part:
+  Improvement suggestion:
+  Overall feedback:
+
+- Add copy-to-clipboard button so the user can paste the result into the actual course feedback form.
+
+- Store saved feedback locally in localStorage.
+- Show a table/list of previously written feedback reviews.
+- Include realistic demo examples:
+  - “The best part was the clear problem framing and smooth demo flow.”
+  - “One improvement would be to explain the LLM pipeline with one simple diagram.”
+  - “The app idea is practical and the presentation clearly showed user value.”
+
+6. AI / LLM Backend
+Create backend API routes:
+- /api/analyze
+- /api/chat
+- /api/feedback
+
+/api/analyze should accept course text and return:
+- summary
+- extracted tasks
+- deadlines
+- missed/at-risk items
+- weekly plan
+- source breakdown
+
+/api/chat should answer questions based on the current course data.
+
+/api/feedback should accept rough peer feedback notes and return a polished review.
+
+Support optional API keys:
+- OPENAI_API_KEY
+or
+- ANTHROPIC_API_KEY
+
+But the app must work even without API keys by using deterministic fallback demo outputs.
+
+7. Demo Mode
+Add a clear “Load Demo Data” button.
+Demo data should include:
+- AMS 691 app demo submission instructions
+- due date May 10, 2026 at 11:59 PM
+- required demo video
+- required thumbnail image
+- required project.md
+- required source code in src/ folder
+- Google Drive upload step
+- GitHub pull request step
+- peer presentation feedback requirement
+- sample scattered announcement text from Brightspace, Discord, and Google Drive
+
+8. UI Design
+Make the app look modern and presentation-ready:
+- dark background
+- glowing teal/blue gradient accents
+- sidebar navigation
+- top summary cards
+- clean cards with rounded corners
+- icons for sources
+- badges for priority/status
+- empty states
+- loading states
+- success messages
+- responsive mobile layout
+
+Navigation:
+- Dashboard
+- Sources
+- Tasks
+- AI Assistant
+- Feedback Helper
+- About
+
+9. About Page
+Create an About page describing:
+- Problem
+- Solution
+- User flow
+- LLM components
+- Tools used
+- Limitations
+- Future work
+
+Mention honestly:
+“This prototype uses sample and pasted course data. Future versions could connect to Brightspace, Discord, Google Drive, and Google Forms APIs.”
+
+10. Files to Create
+Create:
+- README.md with setup instructions
+- .env.example
+- project.md for the AMS 691 showcase submission
+- clean source code
+- sample data file if useful
+
+project.md should include:
+- title: UniFlow: AI-Powered Unified Course Assistant
+- tagline
+- problem
+- solution
+- user flow
+- LLM components
+- tools used
+- limitations
+- future work
+- placeholder videoUrl
+- placeholder thumbnailUrl
+
+11. Technical Requirements
+- Use TypeScript properly
+- Avoid broken imports
+- Keep code clean and simple
+- Do not over-engineer authentication
+- Do not require a database
+- Use localStorage or simple JSON state for prototype persistence
+- App should run successfully in Replit preview
+- Make sure all buttons work
+- Make sure fallback AI responses work without API keys
+- Include realistic sample data and demo flow
+
+12. Final Goal
+The final app should be demo-ready in 1–3 minutes.
+The demo should clearly show:
+1. scattered course information problem
+2. loading/pasting course updates
+3. AI summary and task extraction
+4. weekly plan generation
+5. AI Q&A
+6. peer presentation feedback helper
+7. polished copyable review output

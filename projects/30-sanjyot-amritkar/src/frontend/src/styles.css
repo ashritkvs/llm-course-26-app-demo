@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+  background:
+    radial-gradient(900px 600px at 100% 0%, rgba(45, 212, 191, 0.18), transparent 55%),
+    #f8fafc;
+}
+
+.saf-welcome-animate {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: saf-fade-up 600ms ease-out 80ms forwards;
+}
+
+.saf-reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 320ms ease-out, transform 320ms ease-out;
+}
+
+.saf-reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes saf-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .saf-welcome-animate {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .saf-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .saf-reveal-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.saf-stagger-item {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 260ms ease-out, transform 260ms ease-out;
+}
+
+.saf-stagger-item-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

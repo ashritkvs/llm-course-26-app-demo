@@ -1,0 +1,43 @@
+# ══════════════════════════════════════════════════════════
+#  AI PENTEST SCANNER - GITIGNORE
+# ══════════════════════════════════════════════════════════
+
+# 🟢 Security & Environment (CRITICAL)
+.env
+.env.*
+!.env.example
+secrets.json
+*.pem
+*.key
+
+# 🟢 Pentest Reports & Data (Output)
+reports/
+audit.log
+bot.log
+*.json
+!agents/*.json
+!core/*.json
+
+# 🟢 Python Environment
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/
+build/
+dist/
+*.egg-info/
+
+# 🟢 Frontend (Node/Vite)
+node_modules/
+dist/
+.DS_Store
+*.local
+
+# 🟢 System & IDE
+.vscode/
+.idea/
+*.swp
+*.bak
+Thumbs.db

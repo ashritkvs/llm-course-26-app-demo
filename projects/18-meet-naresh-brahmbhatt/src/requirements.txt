@@ -1,0 +1,26 @@
+# DeepWrite — Python dependencies
+# Install with: pip install -r requirements.txt
+
+# LangGraph + LangChain core
+langgraph>=0.2.0
+langchain-core>=0.3.0
+langchain-community>=0.3.0
+
+# LLM provider (Groq — hosts Llama 3.3 70B)
+langchain-groq>=0.2.0
+
+# Web research
+tavily-python>=0.3.0
+chromadb>=0.4.0
+sentence-transformers>=2.2.0
+
+
+# Pydantic v2
+pydantic>=2.0.0
+
+# Streamlit frontend
+streamlit>=1.35.0
+
+# Utilities
+python-dotenv>=1.0.0
+pandas>=2.0.0
