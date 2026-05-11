@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      - FAISS_INDEX_PATH=/app/data/faiss_index
+      - CORS_ORIGINS=http://localhost:5173
+      - DATABASE_URL=sqlite:////app/data/custiq.db
+      - ALERT_CHECK_INTERVAL=86400
+    volumes:
+      - ./backend/data:/app/data
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
