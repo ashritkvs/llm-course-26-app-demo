@@ -1,0 +1,391 @@
+{
+  "question": "Why does the electrical resistance of most metals increase when heated?",
+  "draft_answer": "Reasoning summary:\n- In most metals, carrier density is roughly constant; temperature mainly changes scattering.\n- Higher temperature increases lattice vibrations (phonons), strengthening electron–phonon scattering.\n- More scattering lowers mobility, so resistivity typically increases (often roughly linear near room temperature).\n\nConclusion: Heating most metals increases resistance because stronger lattice vibrations increase electron scattering and reduce mobility.",
+  "extracted_claims": [
+    {
+      "claim_id": "C1",
+      "text": "For most metals near room temperature, resistivity increases with temperature and is often approximately linear.",
+      "category": "fact",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C2",
+      "text": "Raising temperature increases lattice vibrations (phonons), which increases electron–phonon scattering.",
+      "category": "mechanism",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C3",
+      "text": "In the Drude picture with roughly constant carrier density, increased scattering lowers mobility and raises resistivity.",
+      "category": "mechanism",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C4",
+      "text": "Semiconductors often show decreasing resistance with increasing temperature, opposite to metals.",
+      "category": "fact",
+      "supports_final": false,
+      "critical": false
+    }
+  ],
+  "verification_questions": {
+    "C1": [
+      {
+        "question_id": "C1_Q1",
+        "question": "Near room temperature, for most metals does resistivity increase or decrease as temperature increases?",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "C1_Q2",
+        "question": "Near room temperature, is resistivity vs. temperature often approximated as roughly linear? (Answer yes/no.)",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "C1_Q3",
+        "question": "At cryogenic temperatures, is the resistivity–temperature relationship typically less linear than near room temperature? (Answer yes/no.)",
+        "expected_answer_type": "short_fact"
+      }
+    ],
+    "C2": [
+      {
+        "question_id": "C2_Q1",
+        "question": "As temperature increases, how do phonon populations (lattice vibrations) typically change?",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "C2_Q2",
+        "question": "In a metal, if phonon population increases, does electron–phonon scattering generally increase or decrease?",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "C2_Q3",
+        "question": "Near room temperature, does raising temperature tend to increase or decrease electron–phonon scattering?",
+        "expected_answer_type": "short_fact"
+      }
+    ],
+    "C3": [
+      {
+        "question_id": "C3_Q1",
+        "question": "If scattering becomes stronger, does the relaxation time τ generally increase or decrease?",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "C3_Q2",
+        "question": "In the Drude model, if τ decreases, does mobility μ increase or decrease?",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "C3_Q3",
+        "question": "Assuming carrier density n is roughly constant, if μ decreases, does resistivity ρ increase or decrease?",
+        "expected_answer_type": "short_fact"
+      }
+    ],
+    "C4": [
+      {
+        "question_id": "Q1",
+        "question": "How does a semiconductor’s resistance typically change with temperature, and what physical quantity mainly drives it?",
+        "expected_answer_type": "explanation"
+      },
+      {
+        "question_id": "Q2",
+        "question": "From a band-structure view, why can increasing temperature increase carrier concentration?",
+        "expected_answer_type": "explanation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "When might a semiconductor’s resistance increase with temperature or become non-monotonic?",
+        "expected_answer_type": "explanation"
+      }
+    ]
+  },
+  "verification_answers": {
+    "C1": [
+      {
+        "question_id": "C1_Q1",
+        "question": "Near room temperature, for most metals does resistivity increase or decrease as temperature increases?",
+        "expected_answer_type": "short_fact",
+        "answer": "Increase. For many pure metals near room temperature, resistivity increases as temperature rises and is often approximated as roughly linear over a limited range.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "This matches the standard temperature coefficient behavior for metals near room temperature.",
+        "relevance": 0.8571,
+        "required_terms": [
+          "rho"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "C1_Q2",
+        "question": "Near room temperature, is resistivity vs. temperature often approximated as roughly linear? (Answer yes/no.)",
+        "expected_answer_type": "short_fact",
+        "answer": "Yes. Near room temperature, resistivity vs. temperature for many metals is often approximated as roughly linear over a limited range.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.76,
+        "rationale_brief": "A linear approximation is commonly used around room temperature for simple metals.",
+        "relevance": 0.8571,
+        "required_terms": [
+          "rho"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "C1_Q3",
+        "question": "At cryogenic temperatures, is the resistivity–temperature relationship typically less linear than near room temperature? (Answer yes/no.)",
+        "expected_answer_type": "short_fact",
+        "answer": "Yes. At cryogenic temperatures, resistivity can deviate from a simple linear-in-T form compared with near room temperature.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.7,
+        "rationale_brief": "Different scattering regimes lead to different scalings at low temperature.",
+        "relevance": 0.5455,
+        "required_terms": [
+          "rho"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ],
+    "C2": [
+      {
+        "question_id": "C2_Q1",
+        "question": "As temperature increases, how do phonon populations (lattice vibrations) typically change?",
+        "expected_answer_type": "short_fact",
+        "answer": "Increase. Phonon population (lattice vibrations) rises with temperature because thermal energy excites more phonon modes.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "Phonon occupation numbers rise as T increases.",
+        "relevance": 0.5714,
+        "required_terms": [
+          "phonon",
+          "lattice"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "C2_Q2",
+        "question": "In a metal, if phonon population increases, does electron–phonon scattering generally increase or decrease?",
+        "expected_answer_type": "short_fact",
+        "answer": "Increase. More phonons generally increase electron–phonon scattering because they provide more scattering events.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.77,
+        "rationale_brief": "Electron–phonon scattering strength grows with phonon population.",
+        "relevance": 0.5556,
+        "required_terms": [
+          "phonon",
+          "scattering"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "C2_Q3",
+        "question": "Near room temperature, does raising temperature tend to increase or decrease electron–phonon scattering?",
+        "expected_answer_type": "short_fact",
+        "answer": "Increase. Near room temperature, raising temperature tends to increase electron–phonon scattering (shorter relaxation time τ).",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.74,
+        "rationale_brief": "More phonons at higher T increase scattering rates in metals.",
+        "relevance": 0.7778,
+        "required_terms": [
+          "phonon",
+          "scattering"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ],
+    "C3": [
+      {
+        "question_id": "C3_Q1",
+        "question": "If scattering becomes stronger, does the relaxation time τ generally increase or decrease?",
+        "expected_answer_type": "short_fact",
+        "answer": "Decrease. Stronger scattering generally decreases the relaxation time τ (more frequent collisions), which reduces mobility μ.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.73,
+        "rationale_brief": "Relaxation time is the average time between scattering events.",
+        "relevance": 0.75,
+        "required_terms": [
+          "tau",
+          "scattering"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "C3_Q2",
+        "question": "In the Drude model, if τ decreases, does mobility μ increase or decrease?",
+        "expected_answer_type": "short_fact",
+        "answer": "Decrease. In the Drude model, mobility μ is proportional to relaxation time τ (μ = eτ/m), so τ↓ implies μ↓.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.76,
+        "rationale_brief": "Mobility tracks how long carriers accelerate between scattering events.",
+        "relevance": 0.6667,
+        "required_terms": [
+          "tau",
+          "mu"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "C3_Q3",
+        "question": "Assuming carrier density n is roughly constant, if μ decreases, does resistivity ρ increase or decrease?",
+        "expected_answer_type": "short_fact",
+        "answer": "Increase. With roughly constant carrier density n, resistivity ρ increases when mobility μ decreases (σ≈neμ, ρ=1/σ).",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.75,
+        "rationale_brief": "Lower mobility reduces conductivity, increasing resistivity.",
+        "relevance": 0.75,
+        "required_terms": [
+          "mu",
+          "rho"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ],
+    "C4": [
+      {
+        "question_id": "Q1",
+        "question": "How does a semiconductor’s resistance typically change with temperature, and what physical quantity mainly drives it?",
+        "expected_answer_type": "explanation",
+        "answer": "Semiconductors often become more conductive as temperature increases because thermal excitation increases carrier concentration; this can outweigh mobility decreases over many ranges.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.72,
+        "rationale_brief": "Carrier concentration is strongly temperature-dependent in semiconductors, commonly driving resistance down as T rises.",
+        "relevance": 0.125,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q2",
+        "question": "From a band-structure view, why can increasing temperature increase carrier concentration?",
+        "expected_answer_type": "explanation",
+        "answer": "Insufficient information to determine reliably.",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:low_keyword_coverage] The question needs more specific context or parameters.",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": "low_keyword_coverage"
+      },
+      {
+        "question_id": "Q3",
+        "question": "When might a semiconductor’s resistance increase with temperature or become non-monotonic?",
+        "expected_answer_type": "explanation",
+        "answer": "Semiconductors often become more conductive as temperature increases because thermal excitation increases carrier concentration; this can outweigh mobility decreases over many ranges.",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:repeated_answer] Carrier concentration is strongly temperature-dependent in semiconductors, commonly driving resistance down as T rises.",
+        "relevance": 0.25,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": "repeated_answer"
+      }
+    ]
+  },
+  "trust_score": 1.0,
+  "decision": "ACCEPT",
+  "diagnostics": {
+    "supported": 3,
+    "refuted": 0,
+    "uncertain": 1,
+    "claims_with_any_uncertainty": 1,
+    "claims_with_any_refute": 0,
+    "core_claims_total": 3,
+    "core_claims_with_any_uncertainty": 0,
+    "core_claims_with_any_refute": 0,
+    "core_claims_supported_fully": 3,
+    "core_claims_partially_supported": 0,
+    "core_claims_uncertain": 0,
+    "core_claims_refuted": 0,
+    "supported_ratio": 0.75,
+    "refuted_ratio": 0.0,
+    "uncertain_ratio": 0.25,
+    "support_mass_avg": 0.9296,
+    "refute_mass_avg": 0.0,
+    "uncertain_mass_avg": 0.0704,
+    "core_support_mass_avg": 1.0,
+    "core_refute_mass_avg": 0.0,
+    "core_uncertain_mass_avg": 0.0,
+    "core_trust_score": 1.0,
+    "overall_trust_score": 0.9754,
+    "overall_trust_score_raw": 0.9155,
+    "aux_uncertain_mass_avg": 0.493,
+    "aux_refute_mass_avg": 0.0,
+    "aux_adjustment": 0.0246,
+    "trust_score_all_claims": 0.9155,
+    "primary_failure_modes": [
+      [
+        "low_keyword_coverage",
+        1
+      ],
+      [
+        "repeated_answer",
+        1
+      ]
+    ],
+    "critical_refuted": 0,
+    "supports_final_refuted": 0,
+    "per_claim": {
+      "C1": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      },
+      "C2": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      },
+      "C3": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      },
+      "C4": {
+        "status": "UNCERTAIN",
+        "support": 0.507,
+        "refute": 0.0,
+        "uncertain": 0.493,
+        "score": 0.4085,
+        "critical": false,
+        "supports_final": false,
+        "is_core": false,
+        "has_uncertainty": true,
+        "has_refute": false
+      }
+    },
+    "decision_reason": "No core refutations and most core claims are fully supported, so ACCEPT.",
+    "core_failure_summary": "core claims: fully_supported=3, partially_supported=0, uncertain=0, refuted=0, total=3"
+  }
+}
+

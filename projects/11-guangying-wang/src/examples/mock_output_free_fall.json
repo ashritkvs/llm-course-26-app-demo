@@ -1,0 +1,358 @@
+{
+  "question": "An object is dropped from rest from a height of 45 m (ignore air resistance). How long does it take to hit the ground, and what is its speed just before impact?",
+  "draft_answer": "Reasoning summary:\n- With constant gravitational acceleration g and no air resistance, h = (1/2) g t^2.\n- So t = sqrt(2h/g). The impact speed is v = g t = sqrt(2gh).\n- For h=45 m and g≈9.8 m/s^2, t≈3.03 s and v≈29.7 m/s downward.\n\nConclusion: Time ≈ 3.03 s; speed just before impact ≈ 29.7 m/s downward.",
+  "extracted_claims": [
+    {
+      "claim_id": "C1",
+      "text": "Ignoring air resistance with constant g, free-fall distance satisfies h = (1/2) g t^2, so t = sqrt(2h/g).",
+      "category": "calculation",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C2",
+      "text": "The impact speed satisfies v = g t = sqrt(2gh).",
+      "category": "calculation",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C3",
+      "text": "For h=45 m and g≈9.8 m/s^2, the time is t≈3.03 s.",
+      "category": "calculation",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C4",
+      "text": "The speed just before impact is v≈29.7 m/s downward.",
+      "category": "calculation",
+      "supports_final": true,
+      "critical": true
+    }
+  ],
+  "verification_questions": {
+    "C1": [
+      {
+        "question_id": "Q1",
+        "question": "In free fall from rest (no air resistance), what is the relationship between height h and time t?",
+        "expected_answer_type": "calculation"
+      },
+      {
+        "question_id": "Q2",
+        "question": "Solve h=(1/2)gt^2 for t in terms of h and g.",
+        "expected_answer_type": "calculation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "For h=45 m and g=9.8 m/s^2, what is t approximately?",
+        "expected_answer_type": "calculation"
+      }
+    ],
+    "C2": [
+      {
+        "question_id": "Q1",
+        "question": "In free fall from rest, what is the relationship between speed v and time t?",
+        "expected_answer_type": "calculation"
+      },
+      {
+        "question_id": "Q2",
+        "question": "State the relationship between impact speed and height: v = sqrt(2gh).",
+        "expected_answer_type": "calculation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "For h=45 m and g=9.8 m/s^2, what is v approximately?",
+        "expected_answer_type": "calculation"
+      }
+    ],
+    "C3": [
+      {
+        "question_id": "Q1",
+        "question": "In free fall from rest (no air resistance), what is the relationship between height h and time t?",
+        "expected_answer_type": "calculation"
+      },
+      {
+        "question_id": "Q2",
+        "question": "Solve h=(1/2)gt^2 for t in terms of h and g.",
+        "expected_answer_type": "calculation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "For h=45 m and g=9.8 m/s^2, what is t approximately?",
+        "expected_answer_type": "calculation"
+      }
+    ],
+    "C4": [
+      {
+        "question_id": "Q1",
+        "question": "In free fall from rest, what is the relationship between speed v and time t?",
+        "expected_answer_type": "calculation"
+      },
+      {
+        "question_id": "Q2",
+        "question": "State the relationship between impact speed and height: v = sqrt(2gh).",
+        "expected_answer_type": "calculation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "For h=45 m and g=9.8 m/s^2, what is v approximately?",
+        "expected_answer_type": "calculation"
+      }
+    ]
+  },
+  "verification_answers": {
+    "C1": [
+      {
+        "question_id": "Q1",
+        "question": "In free fall from rest (no air resistance), what is the relationship between height h and time t?",
+        "expected_answer_type": "calculation",
+        "answer": "h = (1/2) g t^2 (starting from rest, constant g).",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.8,
+        "rationale_brief": "Standard constant-acceleration kinematics.",
+        "relevance": 0.2,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q2",
+        "question": "Solve h=(1/2)gt^2 for t in terms of h and g.",
+        "expected_answer_type": "calculation",
+        "answer": "t = sqrt(2h/g).",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.82,
+        "rationale_brief": "Rearrange h=(1/2)gt^2.",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q3",
+        "question": "For h=45 m and g=9.8 m/s^2, what is t approximately?",
+        "expected_answer_type": "calculation",
+        "answer": "t ≈ sqrt(2·45/9.8) ≈ 3.03 s.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "Plug into t = sqrt(2h/g).",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ],
+    "C2": [
+      {
+        "question_id": "Q1",
+        "question": "In free fall from rest, what is the relationship between speed v and time t?",
+        "expected_answer_type": "calculation",
+        "answer": "v = g t (starting from rest).",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.8,
+        "rationale_brief": "Constant acceleration: v=at.",
+        "relevance": 0.25,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q2",
+        "question": "State the relationship between impact speed and height: v = sqrt(2gh).",
+        "expected_answer_type": "calculation",
+        "answer": "v = sqrt(2gh).",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.8,
+        "rationale_brief": "From v^2 = 2gh for drop from rest.",
+        "relevance": 0.1429,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q3",
+        "question": "For h=45 m and g=9.8 m/s^2, what is v approximately?",
+        "expected_answer_type": "calculation",
+        "answer": "v ≈ sqrt(2·9.8·45) ≈ 29.7 m/s downward.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "Plug into v = sqrt(2gh).",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ],
+    "C3": [
+      {
+        "question_id": "Q1",
+        "question": "In free fall from rest (no air resistance), what is the relationship between height h and time t?",
+        "expected_answer_type": "calculation",
+        "answer": "h = (1/2) g t^2 (starting from rest, constant g).",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.8,
+        "rationale_brief": "Standard constant-acceleration kinematics.",
+        "relevance": 0.2,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q2",
+        "question": "Solve h=(1/2)gt^2 for t in terms of h and g.",
+        "expected_answer_type": "calculation",
+        "answer": "t = sqrt(2h/g).",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.82,
+        "rationale_brief": "Rearrange h=(1/2)gt^2.",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q3",
+        "question": "For h=45 m and g=9.8 m/s^2, what is t approximately?",
+        "expected_answer_type": "calculation",
+        "answer": "t ≈ sqrt(2·45/9.8) ≈ 3.03 s.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "Plug into t = sqrt(2h/g).",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ],
+    "C4": [
+      {
+        "question_id": "Q1",
+        "question": "In free fall from rest, what is the relationship between speed v and time t?",
+        "expected_answer_type": "calculation",
+        "answer": "v = g t (starting from rest).",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.8,
+        "rationale_brief": "Constant acceleration: v=at.",
+        "relevance": 0.25,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q2",
+        "question": "State the relationship between impact speed and height: v = sqrt(2gh).",
+        "expected_answer_type": "calculation",
+        "answer": "v = sqrt(2gh).",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.8,
+        "rationale_brief": "From v^2 = 2gh for drop from rest.",
+        "relevance": 0.1429,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q3",
+        "question": "For h=45 m and g=9.8 m/s^2, what is v approximately?",
+        "expected_answer_type": "calculation",
+        "answer": "v ≈ sqrt(2·9.8·45) ≈ 29.7 m/s downward.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "Plug into v = sqrt(2gh).",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ]
+  },
+  "trust_score": 1.0,
+  "decision": "ACCEPT",
+  "diagnostics": {
+    "supported": 4,
+    "refuted": 0,
+    "uncertain": 0,
+    "claims_with_any_uncertainty": 0,
+    "claims_with_any_refute": 0,
+    "core_claims_total": 4,
+    "core_claims_with_any_uncertainty": 0,
+    "core_claims_with_any_refute": 0,
+    "core_claims_supported_fully": 4,
+    "core_claims_partially_supported": 0,
+    "core_claims_uncertain": 0,
+    "core_claims_refuted": 0,
+    "supported_ratio": 1.0,
+    "refuted_ratio": 0.0,
+    "uncertain_ratio": 0.0,
+    "support_mass_avg": 1.0,
+    "refute_mass_avg": 0.0,
+    "uncertain_mass_avg": 0.0,
+    "core_support_mass_avg": 1.0,
+    "core_refute_mass_avg": 0.0,
+    "core_uncertain_mass_avg": 0.0,
+    "core_trust_score": 1.0,
+    "overall_trust_score": 1.0,
+    "overall_trust_score_raw": 1.0,
+    "aux_uncertain_mass_avg": 0.0,
+    "aux_refute_mass_avg": 0.0,
+    "aux_adjustment": 0.0,
+    "trust_score_all_claims": 1.0,
+    "primary_failure_modes": [],
+    "critical_refuted": 0,
+    "supports_final_refuted": 0,
+    "per_claim": {
+      "C1": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      },
+      "C2": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      },
+      "C3": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      },
+      "C4": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      }
+    },
+    "decision_reason": "No core refutations and most core claims are fully supported, so ACCEPT.",
+    "core_failure_summary": "core claims: fully_supported=4, partially_supported=0, uncertain=0, refuted=0, total=4"
+  }
+}
+

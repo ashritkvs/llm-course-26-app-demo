@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LLM Detector</title>
+    <style>
+      :root {
+        --bg: #f6f7f7;
+        --panel: #ffffff;
+        --muted: #6b7280;
+        --text: #111827;
+        --border: #e5e7eb;
+        --accent: #16a34a;
+        --accent-soft: #dcfce7;
+        --good: #16a34a;
+        --warn: #111827;
+        --bad: #111827;
+      }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+          "Segoe UI Emoji";
+        background: linear-gradient(180deg, #ffffff 0%, var(--bg) 85%);
+        color: var(--text);
+      }
+      .wrap {
+        max-width: 1100px;
+        margin: 28px auto;
+        padding: 0 18px;
+      }
+      @media (min-width: 700px) {
+        /* Leave room for the (collapsed) left sidebar. */
+        .wrap {
+          margin-left: 64px;
+        }
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+      h1 {
+        font-size: 18px;
+        margin: 0;
+        letter-spacing: 0.2px;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 6px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      @media (max-width: 960px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 320px;
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+      }
+      .sidebar.collapsed {
+        width: 44px;
+      }
+      .sidebar-top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-bottom: 1px solid var(--border);
+      }
+      .sidebar-title {
+        font-size: 12px;
+        color: var(--muted);
+        letter-spacing: 0.2px;
+      }
+      .sidebar-toggle {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 6px 8px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .sidebar-content {
+        padding: 10px;
+        overflow: auto;
+      }
+      .sidebar.collapsed .sidebar-title,
+      .sidebar.collapsed .sidebar-content {
+        display: none;
+      }
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 14px;
+        box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03), 0 10px 24px rgba(15, 23, 42, 0.05);
+      }
+      label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      textarea {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        color: var(--text);
+        min-height: 100px;
+        resize: vertical;
+        outline: none;
+      }
+      textarea:focus {
+        border-color: color-mix(in srgb, var(--accent), #ffffff 35%);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-soft), #ffffff 20%);
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      .row2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      select,
+      input[type="number"],
+      input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        color: var(--text);
+        outline: none;
+      }
+      select:focus,
+      input[type="number"]:focus,
+      input[type="text"]:focus {
+        border-color: color-mix(in srgb, var(--accent), #ffffff 35%);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-soft), #ffffff 20%);
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 12px;
+      }
+      .spinner {
+        width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        border: 2px solid var(--border);
+        border-top-color: var(--accent);
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      button {
+        background: var(--accent);
+        border: 1px solid var(--accent);
+        color: #ffffff;
+        padding: 10px 12px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      button:hover {
+        filter: brightness(0.98);
+      }
+      .btn-secondary {
+        background: #ffffff;
+        border: 1px solid var(--border);
+        color: var(--text);
+      }
+      .btn-secondary:hover {
+        border-color: color-mix(in srgb, var(--accent), #ffffff 60%);
+        background: color-mix(in srgb, var(--accent-soft), #ffffff 80%);
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .kv {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 8px;
+        font-size: 12px;
+        margin-top: 6px;
+      }
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .stat {
+        border: 1px solid var(--border);
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 8px 10px;
+      }
+      .stat-label {
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .stat-value {
+        margin-top: 2px;
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--good);
+      }
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+      .score {
+        font-size: 14px;
+        font-weight: 700;
+      }
+      .decision {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+      }
+      .d-ACCEPT {
+        color: var(--good);
+        border-color: color-mix(in srgb, var(--good), #ffffff 60%);
+        background: color-mix(in srgb, var(--good), #ffffff 90%);
+      }
+	      .d-LOW_CONFIDENCE {
+	        color: #111827;
+	        border-color: #d1d5db;
+	        background: #f3f4f6;
+	      }
+	      .d-ABSTAIN {
+	        color: #111827;
+	        border-color: #d1d5db;
+	        background: #e5e7eb;
+	      }
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin: 0;
+        background: #f8fafc;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 12px;
+        line-height: 1.45;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      .small {
+        font-size: 12px;
+      }
+	      .err {
+	        color: #111827;
+	      }
+      .claim {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 10px;
+        background: #ffffff;
+        margin-top: 10px;
+      }
+      .claim {
+        border-left: 3px solid color-mix(in srgb, var(--accent), #ffffff 35%);
+      }
+      .claim h3 {
+        margin: 0 0 6px 0;
+        font-size: 12px;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .claim .text {
+        margin: 0;
+        font-size: 13px;
+      }
+      details {
+        margin-top: 8px;
+      }
+      summary {
+        cursor: pointer;
+        color: var(--accent);
+        font-size: 12px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .history-item {
+        display: block;
+        width: 100%;
+        text-align: left;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        color: var(--text);
+        cursor: pointer;
+        font-size: 12px;
+      }
+      .history-item-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .history-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: #d1d5db;
+        flex: 0 0 auto;
+      }
+      .history-dot.cached {
+        background: var(--good);
+      }
+      .history-item:hover {
+        border-color: color-mix(in srgb, var(--accent), #ffffff 35%);
+      }
+      .history-meta {
+        color: var(--muted);
+        font-size: 11px;
+        margin-top: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <aside id="sidebar" class="sidebar collapsed">
+      <div class="sidebar-top">
+        <button id="sidebar_toggle" class="sidebar-toggle btn-secondary" title="Toggle history">≡</button>
+        <div class="sidebar-title mono">History</div>
+      </div>
+      <div class="sidebar-content">
+        <div class="small muted">Click to load a previous question.</div>
+        <div class="actions" style="margin-top: 10px">
+          <button id="clear_history" class="btn-secondary" style="padding: 8px 10px; font-size: 12px">
+            Clear
+          </button>
+          <span class="pill mono" id="history_count">0</span>
+        </div>
+        <div id="history_list" style="display: grid; gap: 10px; margin-top: 10px"></div>
+        <div class="history-meta mono" id="history_hint"></div>
+      </div>
+    </aside>
+
+    <div class="wrap">
+      <div class="header">
+        <div>
+          <h1>LLM Detector (claim-level verification)</h1>
+        </div>
+      </div>
+
+      <div class="grid">
+          <div class="card">
+            <label for="question">Question</label>
+            <textarea id="question" placeholder="Type a question (e.g., Why do antibiotics typically not work against viral infections?)"></textarea>
+
+            <div class="row">
+              <div>
+                <label for="lang">Lang</label>
+                <select id="lang">
+                  <option value="auto">auto</option>
+                  <option value="en">en</option>
+                  <option value="zh">zh</option>
+                </select>
+              </div>
+              <div>
+                <label for="model">Model</label>
+                <input id="model" type="text" value="gpt-4o" />
+              </div>
+              <div>
+                <label for="mock">Mock</label>
+                <select id="mock">
+                  <option value="false">false</option>
+                  <option value="true">true</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row2">
+              <div>
+                <label for="max_claims">max_claims</label>
+                <input id="max_claims" type="number" value="8" min="3" max="12" />
+              </div>
+              <div>
+                <label for="per_claim_questions">per_claim_questions</label>
+                <input id="per_claim_questions" type="number" value="3" min="2" max="4" />
+              </div>
+            </div>
+
+	            <div class="actions">
+	              <button id="run">Run</button>
+	              <span class="pill">
+	                <span class="muted">Status</span>
+	                <span id="spinner" class="spinner" hidden></span>
+	                <span id="status" class="mono">idle</span>
+	              </span>
+	            </div>
+          </div>
+
+	          <div class="card">
+	            <div class="small muted">Draft answer</div>
+	            <pre id="draft" class="mono" style="margin-top: 8px">—</pre>
+
+	            <div style="margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 10px">
+	              <div class="score">
+	                <div>
+	                  Conclusion: <span id="decision" class="decision mono">—</span>
+	                </div>
+	                <div class="mono" style="margin-top: 6px; font-size: 14px; font-weight: 700; color: var(--text)">
+	                  trust=<span id="trust_score">—</span>
+	                </div>
+	              </div>
+	              <div style="display: flex; align-items: center; gap: 10px">
+	                <button id="expand_claims" class="btn-secondary" style="padding: 8px 10px; font-size: 12px">Hide claims</button>
+	                <div class="badge mono" id="latency">latency: —</div>
+	              </div>
+	            </div>
+
+	            <div class="kv">
+	              <div class="muted">Decision reason</div>
+	              <div id="decision_reason" class="small">—</div>
+	            </div>
+
+	            <div class="small muted" style="margin-top: 10px">Core summary</div>
+	            <div class="stat-grid">
+	              <div class="stat">
+	                <div class="stat-label">fully_supported</div>
+	                <div id="core_fully" class="stat-value mono">—</div>
+	              </div>
+	              <div class="stat">
+	                <div class="stat-label">partially_supported</div>
+	                <div id="core_partial" class="stat-value mono">—</div>
+	              </div>
+	              <div class="stat">
+	                <div class="stat-label">uncertain</div>
+	                <div id="core_uncertain" class="stat-value mono">—</div>
+	              </div>
+	              <div class="stat">
+	                <div class="stat-label">refuted</div>
+	                <div id="core_refuted" class="stat-value mono">—</div>
+	              </div>
+	              <div class="stat">
+	                <div class="stat-label">total</div>
+	                <div id="core_total" class="stat-value mono">—</div>
+	              </div>
+	            </div>
+	          </div>
+      </div>
+
+      <div class="card" id="claims_section" style="margin-top: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px">
+          <div>
+            <div class="score">Claims</div>
+            <div class="small muted">Click each claim to see its verification Q/A and failure modes.</div>
+          </div>
+          <div class="pill mono" id="counts">—</div>
+        </div>
+        <div id="claims"></div>
+        <details style="margin-top: 14px">
+          <summary>Raw JSON</summary>
+          <pre id="raw" class="mono">—</pre>
+        </details>
+        <div id="error" class="err small" style="margin-top: 10px"></div>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+	      const runBtn = $("run");
+	      const statusEl = $("status");
+	      const spinnerEl = $("spinner");
+	      const rawEl = $("raw");
+      const errEl = $("error");
+      const claimsEl = $("claims");
+      const expandBtn = $("expand_claims");
+      const claimsSectionEl = $("claims_section");
+      const historyListEl = $("history_list");
+      const historyCountEl = $("history_count");
+      const clearHistoryBtn = $("clear_history");
+      const historyHintEl = $("history_hint");
+	      const sidebarEl = $("sidebar");
+	      const sidebarToggleBtn = $("sidebar_toggle");
+	      const coreFullyEl = $("core_fully");
+	      const corePartialEl = $("core_partial");
+	      const coreUncertainEl = $("core_uncertain");
+	      const coreRefutedEl = $("core_refuted");
+	      const coreTotalEl = $("core_total");
+
+	      const HISTORY_KEY = "llm_detector_question_history_v1";
+	      const HISTORY_RESULTS_KEY = "llm_detector_cached_results_v1";
+	      const LAST_RESULT_KEY = "llm_detector_last_result_v1";
+	      const HISTORY_LIMIT = 30;
+	      const SIDEBAR_KEY = "llm_detector_history_sidebar_v1";
+
+	      function setStatus(s) {
+	        if (s === "running") {
+	          statusEl.textContent = "thinking…";
+	          spinnerEl.hidden = false;
+	          return;
+	        }
+	        spinnerEl.hidden = true;
+	        statusEl.textContent = s;
+	      }
+
+      function setClaimsVisible(visible) {
+        claimsSectionEl.hidden = !visible;
+        expandBtn.textContent = visible ? "Hide claims" : "Show claims";
+        expandBtn.dataset.state = visible ? "visible" : "hidden";
+        if (visible) {
+          claimsSectionEl.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }
+
+	      function loadHistory() {
+        try {
+          const raw = localStorage.getItem(HISTORY_KEY);
+          const items = raw ? JSON.parse(raw) : [];
+          return Array.isArray(items) ? items : [];
+        } catch {
+          return [];
+        }
+	      }
+
+	      function loadCachedResults() {
+	        try {
+	          const raw = localStorage.getItem(HISTORY_RESULTS_KEY);
+	          const obj = raw ? JSON.parse(raw) : {};
+	          return obj && typeof obj === "object" ? obj : {};
+	        } catch {
+	          return {};
+	        }
+	      }
+
+	      function saveCachedResults(obj) {
+	        localStorage.setItem(HISTORY_RESULTS_KEY, JSON.stringify(obj));
+	      }
+
+	      function cacheResult(question, result) {
+	        const q = (question || "").trim();
+	        if (!q) return;
+	        const cached = loadCachedResults();
+	        cached[q] = { ts: Date.now(), result };
+	        // Simple cap: keep only the most recent 10 cached results.
+	        const entries = Object.entries(cached).sort((a, b) => (b[1]?.ts || 0) - (a[1]?.ts || 0));
+	        const limited = entries.slice(0, 10);
+	        const next = {};
+	        for (const [k, v] of limited) next[k] = v;
+	        saveCachedResults(next);
+	        localStorage.setItem(LAST_RESULT_KEY, JSON.stringify({ ts: Date.now(), question: q, result }));
+	      }
+
+	      function loadLastResult() {
+	        try {
+	          const raw = localStorage.getItem(LAST_RESULT_KEY);
+	          const obj = raw ? JSON.parse(raw) : null;
+	          return obj && obj.result ? obj : null;
+	        } catch {
+	          return null;
+	        }
+	      }
+
+      function saveHistory(items) {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, HISTORY_LIMIT)));
+      }
+
+      function addToHistory(question) {
+        const q = (question || "").trim();
+        if (!q) return;
+        const items = loadHistory();
+        const existingIdx = items.findIndex((it) => it && it.question === q);
+        if (existingIdx !== -1) items.splice(existingIdx, 1);
+        items.unshift({ question: q, ts: Date.now() });
+        saveHistory(items);
+        renderHistory();
+      }
+
+	      function renderHistory() {
+	        const items = loadHistory();
+	        const cached = loadCachedResults();
+	        historyCountEl.textContent = String(items.length);
+	        historyListEl.innerHTML = items
+	          .map((it, idx) => {
+	            const text = it?.question || "";
+	            const short = text.length > 120 ? text.slice(0, 117) + "…" : text;
+	            const hasCache = !!cached[text];
+	            return `
+	              <button class="history-item" data-idx="${idx}" title="${esc(text)}">
+	                <span class="history-item-row">
+	                  <span>${esc(short)}</span>
+	                  <span class="history-dot ${hasCache ? "cached" : ""}" title="${hasCache ? "cached result available" : "no cached result"}"></span>
+	                </span>
+	              </button>`;
+	          })
+	          .join("");
+	        historyHintEl.textContent = items.length ? `Stored in localStorage (${HISTORY_KEY})` : "No history yet.";
+	      }
+
+	      function renderResult(data) {
+	        $("draft").textContent = data.draft_answer || "—";
+	        $("trust_score").textContent = String(data.trust_score ?? "—");
+	        $("decision").textContent = data.decision ?? "—";
+	        $("decision").className = "decision mono";
+	        if (data.decision) $("decision").classList.add("d-" + data.decision);
+	        $("decision_reason").textContent = data.diagnostics?.decision_reason || "—";
+	        $("counts").textContent = `claims=${(data.extracted_claims || []).length} core=${data.diagnostics?.core_claims_total ?? "—"}`;
+	        if (data.diagnostics?.latency_s != null) $("latency").textContent = "latency: " + data.diagnostics.latency_s + "s";
+	        coreFullyEl.textContent = String(data.diagnostics?.core_claims_supported_fully ?? "—");
+	        corePartialEl.textContent = String(data.diagnostics?.core_claims_partially_supported ?? "—");
+	        coreUncertainEl.textContent = String(data.diagnostics?.core_claims_uncertain ?? "—");
+	        coreRefutedEl.textContent = String(data.diagnostics?.core_claims_refuted ?? "—");
+	        coreTotalEl.textContent = String(data.diagnostics?.core_claims_total ?? "—");
+
+	        const perClaim = data.diagnostics?.per_claim || {};
+	        const vq = data.verification_questions || {};
+	        const va = data.verification_answers || {};
+	        const claims = data.extracted_claims || [];
+	        claimsEl.innerHTML = claims.map((c) => renderClaim(c, perClaim, vq, va)).join("");
+	        setClaimsVisible(true);
+	        rawEl.textContent = JSON.stringify(data, null, 2);
+	      }
+
+      function setSidebarCollapsed(collapsed) {
+        sidebarEl.classList.toggle("collapsed", !!collapsed);
+        sidebarToggleBtn.textContent = collapsed ? "≡" : "×";
+        localStorage.setItem(SIDEBAR_KEY, collapsed ? "1" : "0");
+      }
+
+      function esc(s) {
+        return (s || "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+      }
+
+      function renderClaim(claim, perClaim, vq, va) {
+        const id = claim.claim_id;
+        const agg = perClaim?.[id];
+        const tag = agg?.status || "—";
+        const badges = [];
+        if (claim.critical) badges.push("critical");
+        if (claim.supports_final) badges.push("supports_final");
+        if (agg?.has_uncertainty) badges.push("has_uncertainty");
+        if (agg?.has_refute) badges.push("has_refute");
+
+        const qs = vq?.[id] || [];
+        const ans = va?.[id] || [];
+        let qaHtml = "";
+        for (let i = 0; i < qs.length; i++) {
+          const q = qs[i];
+          const a = ans[i];
+          if (!q) continue;
+          qaHtml += `
+            <div class="small" style="margin-top: 8px">
+              <div class="muted mono">${esc(q.question_id)} • ${esc(q.expected_answer_type)}</div>
+              <div>${esc(q.question)}</div>
+              ${a ? `
+                <div class="muted mono" style="margin-top: 4px">
+                  stance=${esc(a.stance_wrt_claim)} conf=${esc(String(a.confidence))} rel=${esc(String(a.relevance))}
+                  ${a.relevance_check_failure_reason ? ` failure=${esc(a.relevance_check_failure_reason)}` : ""}
+                </div>
+                <div class="mono" style="margin-top: 4px">${esc(a.answer)}</div>
+              ` : ""}
+            </div>
+          `;
+        }
+
+        return `
+          <div class="claim">
+            <h3>
+              <span class="mono">${esc(id)} • ${esc(claim.category)} • ${esc(tag)}</span>
+              <span class="badge mono">${esc(badges.join(", ") || "aux")}</span>
+            </h3>
+            <p class="text">${esc(claim.text)}</p>
+            <details>
+              <summary>Verification Q/A</summary>
+              ${qaHtml || `<div class="small muted">No Q/A</div>`}
+              ${agg ? `
+                <div class="small muted mono" style="margin-top: 10px">
+                  support=${esc(String(agg.support))} uncertain=${esc(String(agg.uncertain))} refute=${esc(String(agg.refute))} score=${esc(String(agg.score))}
+                </div>
+              ` : ""}
+            </details>
+          </div>
+        `;
+      }
+
+	      async function run() {
+        errEl.textContent = "";
+        rawEl.textContent = "—";
+        claimsEl.innerHTML = "";
+        $("draft").textContent = "—";
+        $("trust_score").textContent = "—";
+        $("decision").textContent = "—";
+        $("decision").className = "decision mono";
+        $("decision_reason").textContent = "—";
+        coreFullyEl.textContent = "—";
+        corePartialEl.textContent = "—";
+        coreUncertainEl.textContent = "—";
+        coreRefutedEl.textContent = "—";
+        coreTotalEl.textContent = "—";
+        $("counts").textContent = "—";
+        $("latency").textContent = "latency: —";
+
+        const payload = {
+          question: $("question").value,
+          lang: $("lang").value,
+          model: $("model").value,
+          mock: $("mock").value === "true",
+          max_claims: Number($("max_claims").value || 8),
+          per_claim_questions: Number($("per_claim_questions").value || 3),
+        };
+        addToHistory(payload.question);
+
+	        runBtn.disabled = true;
+	        setStatus("running");
+	        try {
+          const resp = await fetch("/api/estimate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+	          const data = await resp.json();
+          if (!resp.ok) {
+            errEl.textContent = typeof data?.detail === "string" ? data.detail : JSON.stringify(data.detail, null, 2);
+            setStatus("error");
+            return;
+          }
+
+	          renderResult(data);
+	          cacheResult(payload.question, data);
+	          renderHistory();
+	          setStatus("done");
+	        } catch (e) {
+          errEl.textContent = String(e);
+          setStatus("error");
+        } finally {
+          runBtn.disabled = false;
+        }
+      }
+
+      runBtn.addEventListener("click", run);
+      sidebarToggleBtn.addEventListener("click", () => {
+        const collapsed = sidebarEl.classList.contains("collapsed");
+        setSidebarCollapsed(!collapsed);
+      });
+	      clearHistoryBtn.addEventListener("click", () => {
+	        localStorage.removeItem(HISTORY_KEY);
+	        localStorage.removeItem(HISTORY_RESULTS_KEY);
+	        localStorage.removeItem(LAST_RESULT_KEY);
+	        renderHistory();
+	      });
+	      historyListEl.addEventListener("click", (e) => {
+        const btn = e.target?.closest?.("button[data-idx]");
+        if (!btn) return;
+        const idx = Number(btn.dataset.idx);
+        const items = loadHistory();
+	        const it = items[idx];
+	        if (!it?.question) return;
+	        $("question").value = it.question;
+	        $("question").focus();
+	        const cached = loadCachedResults();
+	        const hit = cached[it.question];
+	        if (hit?.result) {
+	          errEl.textContent = "";
+	          setStatus("cached");
+	          renderResult(hit.result);
+	        }
+	      });
+      expandBtn.addEventListener("click", () => {
+        const state = expandBtn.dataset.state || "visible";
+        setClaimsVisible(state !== "visible");
+      });
+	      renderHistory();
+	      setSidebarCollapsed(localStorage.getItem(SIDEBAR_KEY) !== "0");
+	      setClaimsVisible(true);
+	      const last = loadLastResult();
+	      if (last?.result) {
+	        $("question").value = last.question || "";
+	        renderResult(last.result);
+	        setStatus("cached");
+	      }
+	    </script>
+  </body>
+</html>

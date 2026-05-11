@@ -1,0 +1,390 @@
+{
+  "question": "Why does increasing temperature generally increase the rate of a chemical reaction?",
+  "draft_answer": "Reasoning summary:\n- Higher temperature increases molecular kinetic energy, leading to more frequent and more energetic collisions.\n- By the Arrhenius form k = A·exp(-Ea/(RT)), increasing T increases the exponential term, raising the rate constant k.\n- From the energy distribution view, higher T significantly increases the fraction of molecules with energy above the activation energy Ea, boosting effective collisions.\n\nConclusion: Increasing temperature usually speeds reactions because it increases the fraction of molecules exceeding the activation energy and raises the rate constant (Arrhenius behavior).",
+  "extracted_claims": [
+    {
+      "claim_id": "C1",
+      "text": "Increasing temperature raises average molecular kinetic energy, leading to more frequent and more energetic collisions.",
+      "category": "mechanism",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C2",
+      "text": "The Arrhenius form k = A·exp(-Ea/(RT)) implies that for Ea>0, increasing T typically increases the rate constant k.",
+      "category": "mechanism",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C3",
+      "text": "Higher temperature increases the fraction of molecules with energy above the activation energy Ea, increasing effective collisions and reaction probability.",
+      "category": "mechanism",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C4",
+      "text": "Temperature sensitivity depends on activation energy: reactions with larger Ea often speed up more (in relative terms) when temperature increases.",
+      "category": "intermediate_conclusion",
+      "supports_final": true,
+      "critical": false
+    }
+  ],
+  "verification_questions": {
+    "C1": [
+      {
+        "question_id": "Q1",
+        "question": "State the Arrhenius form for k and the direction of change in k when T increases (for Ea>0).",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "Q2",
+        "question": "Why does the Arrhenius exponential term make reaction rates increase strongly with temperature?",
+        "expected_answer_type": "explanation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "If Ea≈0, is temperature sensitivity of k stronger or weaker? (Answer stronger/weaker.)",
+        "expected_answer_type": "short_fact"
+      }
+    ],
+    "C2": [
+      {
+        "question_id": "Q1",
+        "question": "State the Arrhenius form for k and the direction of change in k when T increases (for Ea>0).",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "Q2",
+        "question": "Why does the Arrhenius exponential term make reaction rates increase strongly with temperature?",
+        "expected_answer_type": "explanation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "If Ea≈0, is temperature sensitivity of k stronger or weaker? (Answer stronger/weaker.)",
+        "expected_answer_type": "short_fact"
+      }
+    ],
+    "C3": [
+      {
+        "question_id": "Q1",
+        "question": "State the Arrhenius form for k and the direction of change in k when T increases (for Ea>0).",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "Q2",
+        "question": "Why does the Arrhenius exponential term make reaction rates increase strongly with temperature?",
+        "expected_answer_type": "explanation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "If Ea≈0, is temperature sensitivity of k stronger or weaker? (Answer stronger/weaker.)",
+        "expected_answer_type": "short_fact"
+      }
+    ],
+    "C4": [
+      {
+        "question_id": "Q1",
+        "question": "State the Arrhenius form for k and the direction of change in k when T increases (for Ea>0).",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "Q2",
+        "question": "Why does the Arrhenius exponential term make reaction rates increase strongly with temperature?",
+        "expected_answer_type": "explanation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "If Ea≈0, is temperature sensitivity of k stronger or weaker? (Answer stronger/weaker.)",
+        "expected_answer_type": "short_fact"
+      }
+    ]
+  },
+  "verification_answers": {
+    "C1": [
+      {
+        "question_id": "Q1",
+        "question": "State the Arrhenius form for k and the direction of change in k when T increases (for Ea>0).",
+        "expected_answer_type": "short_fact",
+        "answer": "Increase. Arrhenius: k = A·exp(-Ea/(RT)); for Ea>0, increasing T increases k.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "The exponential term grows with temperature when Ea>0.",
+        "relevance": 0.3333,
+        "required_terms": [
+          "arrhenius",
+          "ea"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q2",
+        "question": "Why does the Arrhenius exponential term make reaction rates increase strongly with temperature?",
+        "expected_answer_type": "explanation",
+        "answer": "Because in the Arrhenius equation k = A·exp(-Ea/(RT)), k depends exponentially on -Ea/(RT): increasing T makes -Ea/(RT) less negative, so the exponential factor (and reaction rate) increases rapidly.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.74,
+        "rationale_brief": "Exponential dependence amplifies temperature changes.",
+        "relevance": 0.2222,
+        "required_terms": [
+          "arrhenius",
+          "exponential"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q3",
+        "question": "If Ea≈0, is temperature sensitivity of k stronger or weaker? (Answer stronger/weaker.)",
+        "expected_answer_type": "short_fact",
+        "answer": "Weaker. If Ea≈0, the Arrhenius exponential changes little with T, so k is less temperature-sensitive.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.7,
+        "rationale_brief": "Small Ea reduces the temperature dependence of the exponential term.",
+        "relevance": 0.4,
+        "required_terms": [
+          "ea"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ],
+    "C2": [
+      {
+        "question_id": "Q1",
+        "question": "State the Arrhenius form for k and the direction of change in k when T increases (for Ea>0).",
+        "expected_answer_type": "short_fact",
+        "answer": "Increase. Arrhenius: k = A·exp(-Ea/(RT)); for Ea>0, increasing T increases k.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "The exponential term grows with temperature when Ea>0.",
+        "relevance": 0.3333,
+        "required_terms": [
+          "arrhenius",
+          "ea"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q2",
+        "question": "Why does the Arrhenius exponential term make reaction rates increase strongly with temperature?",
+        "expected_answer_type": "explanation",
+        "answer": "Because in the Arrhenius equation k = A·exp(-Ea/(RT)), k depends exponentially on -Ea/(RT): increasing T makes -Ea/(RT) less negative, so the exponential factor (and reaction rate) increases rapidly.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.74,
+        "rationale_brief": "Exponential dependence amplifies temperature changes.",
+        "relevance": 0.2222,
+        "required_terms": [
+          "arrhenius",
+          "exponential"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q3",
+        "question": "If Ea≈0, is temperature sensitivity of k stronger or weaker? (Answer stronger/weaker.)",
+        "expected_answer_type": "short_fact",
+        "answer": "Weaker. If Ea≈0, the Arrhenius exponential changes little with T, so k is less temperature-sensitive.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.7,
+        "rationale_brief": "Small Ea reduces the temperature dependence of the exponential term.",
+        "relevance": 0.4,
+        "required_terms": [
+          "ea"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ],
+    "C3": [
+      {
+        "question_id": "Q1",
+        "question": "State the Arrhenius form for k and the direction of change in k when T increases (for Ea>0).",
+        "expected_answer_type": "short_fact",
+        "answer": "Increase. Arrhenius: k = A·exp(-Ea/(RT)); for Ea>0, increasing T increases k.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "The exponential term grows with temperature when Ea>0.",
+        "relevance": 0.3333,
+        "required_terms": [
+          "arrhenius",
+          "ea"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q2",
+        "question": "Why does the Arrhenius exponential term make reaction rates increase strongly with temperature?",
+        "expected_answer_type": "explanation",
+        "answer": "Because in the Arrhenius equation k = A·exp(-Ea/(RT)), k depends exponentially on -Ea/(RT): increasing T makes -Ea/(RT) less negative, so the exponential factor (and reaction rate) increases rapidly.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.74,
+        "rationale_brief": "Exponential dependence amplifies temperature changes.",
+        "relevance": 0.2222,
+        "required_terms": [
+          "arrhenius",
+          "exponential"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q3",
+        "question": "If Ea≈0, is temperature sensitivity of k stronger or weaker? (Answer stronger/weaker.)",
+        "expected_answer_type": "short_fact",
+        "answer": "Weaker. If Ea≈0, the Arrhenius exponential changes little with T, so k is less temperature-sensitive.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.7,
+        "rationale_brief": "Small Ea reduces the temperature dependence of the exponential term.",
+        "relevance": 0.4,
+        "required_terms": [
+          "ea"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ],
+    "C4": [
+      {
+        "question_id": "Q1",
+        "question": "State the Arrhenius form for k and the direction of change in k when T increases (for Ea>0).",
+        "expected_answer_type": "short_fact",
+        "answer": "Increase. Arrhenius: k = A·exp(-Ea/(RT)); for Ea>0, increasing T increases k.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "The exponential term grows with temperature when Ea>0.",
+        "relevance": 0.3333,
+        "required_terms": [
+          "arrhenius",
+          "ea"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q2",
+        "question": "Why does the Arrhenius exponential term make reaction rates increase strongly with temperature?",
+        "expected_answer_type": "explanation",
+        "answer": "Because in the Arrhenius equation k = A·exp(-Ea/(RT)), k depends exponentially on -Ea/(RT): increasing T makes -Ea/(RT) less negative, so the exponential factor (and reaction rate) increases rapidly.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.74,
+        "rationale_brief": "Exponential dependence amplifies temperature changes.",
+        "relevance": 0.2222,
+        "required_terms": [
+          "arrhenius",
+          "exponential"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "Q3",
+        "question": "If Ea≈0, is temperature sensitivity of k stronger or weaker? (Answer stronger/weaker.)",
+        "expected_answer_type": "short_fact",
+        "answer": "Weaker. If Ea≈0, the Arrhenius exponential changes little with T, so k is less temperature-sensitive.",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.7,
+        "rationale_brief": "Small Ea reduces the temperature dependence of the exponential term.",
+        "relevance": 0.4,
+        "required_terms": [
+          "ea"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      }
+    ]
+  },
+  "trust_score": 1.0,
+  "decision": "ACCEPT",
+  "diagnostics": {
+    "supported": 4,
+    "refuted": 0,
+    "uncertain": 0,
+    "claims_with_any_uncertainty": 0,
+    "claims_with_any_refute": 0,
+    "core_claims_total": 4,
+    "core_claims_with_any_uncertainty": 0,
+    "core_claims_with_any_refute": 0,
+    "core_claims_supported_fully": 4,
+    "core_claims_partially_supported": 0,
+    "core_claims_uncertain": 0,
+    "core_claims_refuted": 0,
+    "supported_ratio": 1.0,
+    "refuted_ratio": 0.0,
+    "uncertain_ratio": 0.0,
+    "support_mass_avg": 1.0,
+    "refute_mass_avg": 0.0,
+    "uncertain_mass_avg": 0.0,
+    "core_support_mass_avg": 1.0,
+    "core_refute_mass_avg": 0.0,
+    "core_uncertain_mass_avg": 0.0,
+    "core_trust_score": 1.0,
+    "overall_trust_score": 1.0,
+    "overall_trust_score_raw": 1.0,
+    "aux_uncertain_mass_avg": 0.0,
+    "aux_refute_mass_avg": 0.0,
+    "aux_adjustment": 0.0,
+    "trust_score_all_claims": 1.0,
+    "primary_failure_modes": [],
+    "critical_refuted": 0,
+    "supports_final_refuted": 0,
+    "per_claim": {
+      "C1": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      },
+      "C2": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      },
+      "C3": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      },
+      "C4": {
+        "status": "SUPPORTED",
+        "support": 1.0,
+        "refute": 0.0,
+        "uncertain": 0.0,
+        "score": 1.0,
+        "critical": false,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": false,
+        "has_refute": false
+      }
+    },
+    "decision_reason": "No core refutations and most core claims are fully supported, so ACCEPT.",
+    "core_failure_summary": "core claims: fully_supported=4, partially_supported=0, uncertain=0, refuted=0, total=4"
+  }
+}
+

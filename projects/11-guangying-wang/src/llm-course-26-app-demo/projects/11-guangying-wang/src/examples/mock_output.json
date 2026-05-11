@@ -1,0 +1,389 @@
+{
+  "question": "为什么金属加热后电阻通常会增大？",
+  "draft_answer": "推理摘要：\n- 金属载流子数近似不变，温度升高主要改变散射强度。\n- 晶格热振动增强会提高电子-声子散射频率，降低迁移率。\n- 因此电阻率通常随温度升高而增大（近似线性于室温附近）。\n\n结论：多数金属加热后电阻增大，主要因为晶格热振动增强导致电子散射增加、迁移率下降。",
+  "extracted_claims": [
+    {
+      "claim_id": "C1",
+      "text": "在多数金属中，室温附近电阻率随温度升高而增大，常近似线性。",
+      "category": "fact",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C2",
+      "text": "温度升高会增强晶格热振动，从而增加电子-声子散射。",
+      "category": "mechanism",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C3",
+      "text": "散射增强会降低电子迁移率，从而提高电阻率（在载流子浓度近似不变时）。",
+      "category": "mechanism",
+      "supports_final": true,
+      "critical": true
+    },
+    {
+      "claim_id": "C4",
+      "text": "半导体通常表现为温度升高电阻降低，这与金属相反。",
+      "category": "fact",
+      "supports_final": false,
+      "critical": false
+    }
+  ],
+  "verification_questions": {
+    "C1": [
+      {
+        "question_id": "Q1",
+        "question": "金属电阻率在室温附近随温度变化的经验关系通常是什么形式？",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "Q2",
+        "question": "在哪些温度范围这种“近似线性”更容易成立？低温时会发生什么偏离？",
+        "expected_answer_type": "explanation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "为什么纯度/杂质会影响电阻率的温度依赖（残余电阻）？",
+        "expected_answer_type": "explanation"
+      }
+    ],
+    "C2": [
+      {
+        "question_id": "C2_Q1",
+        "question": "温度升高时，声子占据数（或晶格热振动强度）通常如何变化？",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "C2_Q2",
+        "question": "在金属中，声子数增加会如何影响电子-声子散射强度/散射率？",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "C2_Q3",
+        "question": "在室温附近，温度升高通常会让电子-声子散射变强还是变弱？",
+        "expected_answer_type": "short_fact"
+      }
+    ],
+    "C3": [
+      {
+        "question_id": "C3_Q1",
+        "question": "散射增强时，弛豫时间 τ 通常变大还是变小？",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "C3_Q2",
+        "question": "在 Drude 模型中，τ 变小会让迁移率 μ 变大还是变小？",
+        "expected_answer_type": "short_fact"
+      },
+      {
+        "question_id": "C3_Q3",
+        "question": "在 n 近似不变时，迁移率 μ 变小会让电阻率 ρ 变大还是变小？",
+        "expected_answer_type": "short_fact"
+      }
+    ],
+    "C4": [
+      {
+        "question_id": "Q1",
+        "question": "半导体电阻/电导随温度变化通常呈什么趋势？主要由什么量变化主导？",
+        "expected_answer_type": "explanation"
+      },
+      {
+        "question_id": "Q2",
+        "question": "用能带观点解释：温度升高为什么可能增加载流子浓度？",
+        "expected_answer_type": "explanation"
+      },
+      {
+        "question_id": "Q3",
+        "question": "在哪些情况下半导体电阻随温度升高反而会增大（或不单调）？",
+        "expected_answer_type": "explanation"
+      }
+    ]
+  },
+  "verification_answers": {
+    "C1": [
+      {
+        "question_id": "Q1",
+        "question": "金属电阻率在室温附近随温度变化的经验关系通常是什么形式？",
+        "expected_answer_type": "short_fact",
+        "answer": "信息不足，无法确定。",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:missing_required_terms] 该问题需要更具体的上下文与参数。",
+        "relevance": 0.0,
+        "required_terms": [
+          "电阻率"
+        ],
+        "required_coverage": 0.0,
+        "relevance_check_failure_reason": "missing_required_terms"
+      },
+      {
+        "question_id": "Q2",
+        "question": "在哪些温度范围这种“近似线性”更容易成立？低温时会发生什么偏离？",
+        "expected_answer_type": "explanation",
+        "answer": "信息不足，无法确定。",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:repeated_answer] 该问题需要更具体的上下文与参数。",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": "repeated_answer"
+      },
+      {
+        "question_id": "Q3",
+        "question": "为什么纯度/杂质会影响电阻率的温度依赖（残余电阻）？",
+        "expected_answer_type": "explanation",
+        "answer": "信息不足，无法确定。",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:repeated_answer] 该问题需要更具体的上下文与参数。",
+        "relevance": 0.0,
+        "required_terms": [
+          "电阻率"
+        ],
+        "required_coverage": 0.0,
+        "relevance_check_failure_reason": "repeated_answer"
+      }
+    ],
+    "C2": [
+      {
+        "question_id": "C2_Q1",
+        "question": "温度升高时，声子占据数（或晶格热振动强度）通常如何变化？",
+        "expected_answer_type": "short_fact",
+        "answer": "温度升高时，声子占据数（晶格热振动强度）通常增加。因为热激发使更多声子模被占据。",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.78,
+        "rationale_brief": "更高温度对应更高的声子占据数。",
+        "relevance": 0.4,
+        "required_terms": [
+          "声子",
+          "晶格"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "C2_Q2",
+        "question": "在金属中，声子数增加会如何影响电子-声子散射强度/散射率？",
+        "expected_answer_type": "short_fact",
+        "answer": "声子数增加通常会使电子-声子散射变强（散射率增大）。因为可供动量/能量交换的声子更多。",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:low_keyword_coverage] 更多声子意味着更多散射事件。",
+        "relevance": 0.0,
+        "required_terms": [
+          "声子",
+          "散射"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": "low_keyword_coverage"
+      },
+      {
+        "question_id": "C2_Q3",
+        "question": "在室温附近，温度升高通常会让电子-声子散射变强还是变弱？",
+        "expected_answer_type": "short_fact",
+        "answer": "声子数增加通常会使电子-声子散射变强（散射率增大）。因为可供动量/能量交换的声子更多。",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:repeated_answer] 更多声子意味着更多散射事件。",
+        "relevance": 0.2,
+        "required_terms": [
+          "声子",
+          "散射"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": "repeated_answer"
+      }
+    ],
+    "C3": [
+      {
+        "question_id": "C3_Q1",
+        "question": "散射增强时，弛豫时间 τ 通常变大还是变小？",
+        "expected_answer_type": "short_fact",
+        "answer": "散射增强时，弛豫时间 τ 通常变小（更频繁碰撞）。τ 变小会降低迁移率 μ。",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.75,
+        "rationale_brief": "τ 表示平均两次散射之间的时间。",
+        "relevance": 0.5,
+        "required_terms": [
+          "τ",
+          "散射",
+          "弛豫"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "C3_Q2",
+        "question": "在 Drude 模型中，τ 变小会让迁移率 μ 变大还是变小？",
+        "expected_answer_type": "short_fact",
+        "answer": "在 Drude 模型中 μ ∝ τ（μ = eτ/m）。因此 τ 变小会让迁移率 μ 变小。",
+        "stance_wrt_claim": "SUPPORTS",
+        "confidence": 0.76,
+        "rationale_brief": "迁移率与弛豫时间成正比。",
+        "relevance": 0.6667,
+        "required_terms": [
+          "τ",
+          "μ",
+          "迁移率"
+        ],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": null
+      },
+      {
+        "question_id": "C3_Q3",
+        "question": "在 n 近似不变时，迁移率 μ 变小会让电阻率 ρ 变大还是变小？",
+        "expected_answer_type": "short_fact",
+        "answer": "若载流子浓度 n 近似不变，σ≈neμ，μ 变小会让 σ 变小，从而电阻率 ρ=1/σ 变大。",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:low_keyword_coverage] μ 下降会降低电导率并抬高电阻率。",
+        "relevance": 0.0,
+        "required_terms": [
+          "μ",
+          "ρ",
+          "迁移率",
+          "电阻率"
+        ],
+        "required_coverage": 0.75,
+        "relevance_check_failure_reason": "low_keyword_coverage"
+      }
+    ],
+    "C4": [
+      {
+        "question_id": "Q1",
+        "question": "半导体电阻/电导随温度变化通常呈什么趋势？主要由什么量变化主导？",
+        "expected_answer_type": "explanation",
+        "answer": "信息不足，无法确定。",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:low_keyword_coverage] 该问题需要更具体的上下文与参数。",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": "low_keyword_coverage"
+      },
+      {
+        "question_id": "Q2",
+        "question": "用能带观点解释：温度升高为什么可能增加载流子浓度？",
+        "expected_answer_type": "explanation",
+        "answer": "信息不足，无法确定。",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:repeated_answer] 该问题需要更具体的上下文与参数。",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": "repeated_answer"
+      },
+      {
+        "question_id": "Q3",
+        "question": "在哪些情况下半导体电阻随温度升高反而会增大（或不单调）？",
+        "expected_answer_type": "explanation",
+        "answer": "信息不足，无法确定。",
+        "stance_wrt_claim": "UNCERTAIN",
+        "confidence": 0.35,
+        "rationale_brief": "[relevance_check:repeated_answer] 该问题需要更具体的上下文与参数。",
+        "relevance": 0.0,
+        "required_terms": [],
+        "required_coverage": 1.0,
+        "relevance_check_failure_reason": "repeated_answer"
+      }
+    ]
+  },
+  "trust_score": 0.2369,
+  "decision": "ABSTAIN",
+  "diagnostics": {
+    "supported": 1,
+    "refuted": 0,
+    "uncertain": 3,
+    "claims_with_any_uncertainty": 4,
+    "claims_with_any_refute": 0,
+    "core_claims_total": 3,
+    "core_claims_with_any_uncertainty": 3,
+    "core_claims_with_any_refute": 0,
+    "core_claims_supported_fully": 0,
+    "core_claims_partially_supported": 1,
+    "core_claims_uncertain": 2,
+    "core_claims_refuted": 0,
+    "supported_ratio": 0.25,
+    "refuted_ratio": 0.0,
+    "uncertain_ratio": 0.75,
+    "support_mass_avg": 0.3825,
+    "refute_mass_avg": 0.0,
+    "uncertain_mass_avg": 0.6175,
+    "core_support_mass_avg": 0.4463,
+    "core_refute_mass_avg": 0.0,
+    "core_uncertain_mass_avg": 0.5537,
+    "trust_score_all_claims": 0.2031,
+    "primary_failure_modes": [
+      [
+        "repeated_answer",
+        5
+      ],
+      [
+        "low_keyword_coverage",
+        3
+      ],
+      [
+        "missing_required_terms",
+        1
+      ]
+    ],
+    "critical_refuted": 0,
+    "supports_final_refuted": 0,
+    "per_claim": {
+      "C1": {
+        "status": "UNCERTAIN",
+        "support": 0.0,
+        "refute": 0.0,
+        "uncertain": 1.0,
+        "score": 0.0,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": true,
+        "has_refute": false
+      },
+      "C2": {
+        "status": "UNCERTAIN",
+        "support": 0.527,
+        "refute": 0.0,
+        "uncertain": 0.473,
+        "score": 0.0777,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": true,
+        "has_refute": false
+      },
+      "C3": {
+        "status": "SUPPORTED",
+        "support": 0.8118,
+        "refute": 0.0,
+        "uncertain": 0.1882,
+        "score": 0.6331,
+        "critical": true,
+        "supports_final": true,
+        "is_core": true,
+        "has_uncertainty": true,
+        "has_refute": false
+      },
+      "C4": {
+        "status": "UNCERTAIN",
+        "support": 0.0,
+        "refute": 0.0,
+        "uncertain": 1.0,
+        "score": 0.0,
+        "critical": false,
+        "supports_final": false,
+        "is_core": false,
+        "has_uncertainty": true,
+        "has_refute": false
+      }
+    }
+  }
+}
+
