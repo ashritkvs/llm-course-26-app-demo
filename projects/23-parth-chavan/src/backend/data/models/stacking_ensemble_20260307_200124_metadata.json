@@ -1,0 +1,20 @@
+{
+  "model_name": "stacking_ensemble",
+  "model_version": "1.0.0",
+  "training_timestamp": "20260307_200124",
+  "model_file": "stacking_ensemble_20260307_200124.pkl",
+  "metrics": {
+    "accuracy": 0.8333333333333334,
+    "precision": 0.8354430379746836,
+    "recall": 0.868421052631579,
+    "f1_score": 0.8516129032258064,
+    "roc_auc": 0.898981324278438,
+    "optimal_threshold": 0.3682144305806824
+  },
+  "optimal_threshold": 0.3682144305806824,
+  "feature_importance": {},
+  "training_config": {
+    "random_state": 42,
+    "cv_folds": 5
+  }
+}

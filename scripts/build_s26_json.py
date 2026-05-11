@@ -15,6 +15,8 @@ USAGE:
     python build_s26_json.py --check          # validate only, no write
     python build_s26_json.py --verbose        # show per-project details
 
+    python scripts/build_s26_json.py --check --verbose
+
     # Process a single student folder only
     python build_s26_json.py \\
         --only 01-aayush-nair \\
@@ -61,13 +63,13 @@ REQUIRED_FRONTMATTER_FIELDS = {
     "category",
     "tagline",
     "featuredEligible",
+    "videoUrl",
+    "thumbnail",
 }
 
 OPTIONAL_FRONTMATTER_FIELDS = {
     "shortTitle",
     "studentId",
-    "videoUrl",
-    "thumbnail",
     "githubUrl",
 }
 
@@ -455,6 +457,11 @@ def main() -> int:
         nargs="+",
         help="Process only the specified folder name(s), e.g. --only 00-demo-solha-park",
     )
+    parser.add_argument(
+        "--skip-errors",
+        action="store_true",
+        help="Skip projects with validation errors instead of failing the build",
+    )
     args = parser.parse_args()
 
     if not args.projects_dir.is_dir():
@@ -501,8 +508,14 @@ def main() -> int:
     has_any_errors = any(e.has_errors() for e in all_errs)
 
     if has_any_errors:
-        sys.stdout.write("\nNot writing output: validation errors found.\n")
-        return 1
+        if args.skip_errors:
+            n_skipped = sum(1 for e in all_errs if e.has_errors())
+            sys.stdout.write(
+                f"\n--skip-errors: skipping {n_skipped} project(s) with errors.\n"
+            )
+        else:
+            sys.stdout.write("\nNot writing output: validation errors found.\n")
+            return 1
 
     if args.check:
         sys.stdout.write("\n--check mode: validation passed, no file written.\n")
