@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "TA Reply Copilot",
+  "version": "1.0.0",
+  "description": "Course assistant for student Q&A and TA draft replies",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "TA Reply Copilot"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "options_page": "options.html",
+  "permissions": [
+    "sidePanel",
+    "storage"
+  ],
+  "host_permissions": [
+    "http://localhost:8000/*",
+    "http://127.0.0.1:8000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
