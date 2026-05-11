@@ -19,10 +19,9 @@ semester: "Spring 2026"
 shortTitle: ""
 studentId: "117372407"
 videoUrl: https://drive.google.com/file/d/1Zbv3yhvTvxOKic1ozhD3sTPt0wjY_0Jc/view?usp=drive_link
-thumbnail: https://drive.google.com/file/d/1SF5c7OI8aFLgL--x4mgzBroUDoiRE1Uv/view?usp=drive_link
+thumbnail: /thumbnails/31-sanskruti-dhananjay-deshmukh.jpeg
 githubUrl: https://github.com/emergingsana123/FridgeRAG_Smart_Fridge_Recipe_Assistant
 ---
-
 # FridgeRAG — Smart Fridge Recipe Assistant
 
 A small assistant that helps you manage fridge contents, track expiry, and suggest recipes using a Retrieval-Augmented Generation (RAG) approach.
