@@ -1,5 +1,5 @@
 ---
-slug: sanjyot-amritkar
+slug: 30-sanjyot-amritkar
 title: State-Aware Adaptive Fitness
 
 students:
@@ -26,11 +26,10 @@ studentId: ""
 
 videoUrl: "https://drive.google.com/file/d/1VUbPFBW-tvd1I7j4cGm3f4G4bQe10IhY/view?usp=drive_link"
 
-thumbnail: "https://drive.google.com/file/d/1p2pTuQIRuN5VnYSENs2hkWKgJAaMQHlV/view?usp=drive_link"
+thumbnail: /thumbnails/30-sanjyot-amritkar.png
 
 githubUrl: "https://github.com/SanjyotAmritkar"
 ---
-
 ## Problem
 
 Most fitness applications assume users can consistently maintain the same workout intensity and schedule. However, factors such as stress, low energy, burnout, and poor recovery significantly impact workout readiness and overall well-being.
