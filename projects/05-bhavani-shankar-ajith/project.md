@@ -18,10 +18,9 @@ semester: "Spring 2026"
 shortTitle: "PaperTrail"
 studentId: "116744227"
 videoUrl: "https://drive.google.com/file/d/1JU_cyqRnd2OTd5WG0Jf1AEKp_OjcpcvW/view?usp=drive_link"
-thumbnail: "https://drive.google.com/file/d/1KIIfIcYfEV-G2ZBhYYU6qZFtt9TN4E78/view?usp=drive_link"
+thumbnail: /thumbnails/05-bhavani-shankar-ajith.png
 githubUrl: "https://github.com/abs768/PaperTrail"
 ---
-
 **Live demo:** [huggingface.co/spaces/abs768/papertrail](https://huggingface.co/spaces/abs768/papertrail)
 
 
