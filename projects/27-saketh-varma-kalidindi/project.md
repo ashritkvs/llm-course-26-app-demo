@@ -9,19 +9,18 @@ tags:
   - OCR
   - RAG
   - consumer-protection
-category: Finance
+category: finance
 tagline: Audit dense banking contracts for hidden fees and predatory clauses.
 featuredEligible: true
 
 semester: "Spring 2026"
 
 shortTitle: "ToS Guardian"
-studentId:  116287838
+studentId:  "116287838"
 videoUrl: https://drive.google.com/file/d/162jvgfqKcFeT35QsfFX9hVtb-lyPoUQn/view?usp=drive_link
-thumbnail: https://drive.google.com/file/d/12wvAU4Khwcrh8Eeufy7NWZnxNZH7Xyvp/view?usp=sharing
+thumbnail: /thumbnails/27-saketh-varma-kalidindi.png
 githubUrl: https://github.com/Zesearch/llm-course-26-app-demo/tree/main/projects/27-saketh-varma-kalidindi/src
 ---
-
 ## Problem
 
 Everyone clicks 'I Agree' on bank contracts without reading them — these documents are intentionally dense, often over 30 pages of complex legalese designed to hide predatory junk fees and unfair legal terms. Manual review is an efficiency bottleneck for consumers and leads to significant financial losses from missed clauses.
