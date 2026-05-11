@@ -6,7 +6,7 @@ students:
 tags:
   - developer tools
   - research
-category: developer tools
+category: developer-tools
 tagline: A vibecoded dependency visualizer for C++ codebases
 featuredEligible: true
 
@@ -15,11 +15,9 @@ semester: "Spring 2026"
 shortTitle: "Codebase Mapper"
 studentId: "116801027"
 videoUrl: "https://drive.google.com/file/d/1ZEemwQQ6Usln1oRMRye0oGOsTkXysZxj/view?usp=sharing"
-thumbnail: "https://drive.google.com/file/d/1KMf3UVaYoOCnr3K8aABLBEmWdTs8G_I9/view?usp=sharing"
+thumbnail: /thumbnails/21-owen-oreilly.png
 githubUrl: "https://github.com/ReillyO/Codebase_Vis_Final_Project/tree/main"
 ---
-
-
 ## Problem
 
 Actively developed open source legacy codebases compose a significant portion of contemporary academic research software due both to their transparency of development history and readiness for further feature development by third parties. Work on these codebases, however, tends to be inefficient and complicated. Code that has evolved and been developed by dozens of contributors over the course of years or decades is almost guaranteed to have obscure dependencies, long-range interactions, and archaic load-bearing components. Academia struggles acutely with this issue because standard practices like refactoring are disincentivized by the lack of publishable material resulting from the effort. For the same reasons, developing a standardized and robust set of test cases is often neglected, leading to blind spots for fringe cases. As a result, any new contributors wishing to develop additional features for a given software suite invariably sink disproportionate amounts of time into learning the load-bearing intricacies and dependencies that cannot be disrupted in the area of focus before attempting any contribution to the codebase, and subsequently incorporate their own convolutions due to the intractability of considering the entire codebase in the architectures of their additions. 
