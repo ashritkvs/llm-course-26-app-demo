@@ -8,16 +8,16 @@ tags:
   - visualizer
   - dataset
 category: developer tool
-tagline: 
+tagline: "AI Powered Dataset Health checker to identify inconsistencies or anomalies."
 featuredEligible: true
 
 semester: "Spring 2026"
 
-shortTitle: ""
+shortTitle: "ModelScope-Lite"
 studentId: "116496667"
 videoUrl: "https://drive.google.com/file/d/1ad5Qmceyz_JEycp2rFVtExe7z9HbIjce/view?usp=drive_link"
 thumbnail: "https://drive.google.com/file/d/1z8GjMl7qcUT97MMfedU2MdMzT8pEBMzP/view?usp=drive_link"
-githubUrl: https://github.com/solhapark
+githubUrl: "https://github.com/solhapark"
 ---
 
 
