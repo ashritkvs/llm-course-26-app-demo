@@ -1,0 +1,586 @@
+Improve my existing UniFlow app without rebuilding it from scratch.
+
+Very important:
+Keep the current app design, dark polished UI, existing styling, and existing working features.
+Do not restart the project from zero.
+Fix the current bugs and extend the product into a stronger demo-ready app.
+
+Current problem:
+The app works well when I click “Load Demo Data” for AMS 691, but when I paste or add another course’s Brightspace announcement, the dashboard, tasks, AI assistant, and analysis still keep showing AMS 691 demo output.
+
+This must be fixed.
+
+Main product idea:
+UniFlow should be an AI-powered unified course workspace.
+
+Students usually manage course information across scattered platforms:
+- Brightspace announcements
+- Discord discussions
+- Google Drive links
+- quizzes and assignments
+- presentation feedback forms
+
+UniFlow should bring all of this into one app where students can:
+1. create and read course announcements
+2. share resource links like Google Drive links
+3. collaborate in a Discord-style discussion space
+4. track assignments and deadlines
+5. ask AI questions about the course workspace
+6. write polished peer presentation feedback
+7. generate an AI weekly action plan
+
+The app should still support AMS 691 demo data, but it should also support custom user-created data.
+
+Use:
+- Next.js
+- TypeScript
+- Tailwind CSS
+- localStorage for persistence
+- No database required
+- No real Brightspace, Discord, Google Drive, or Google Forms API integration required
+- Optional OpenAI or Anthropic API key support
+- Must work without API keys using fallback demo/generic analyzer logic
+
+==================================================
+1. FIX GLOBAL DATA FLOW
+==================================================
+
+The app must support two clear modes:
+
+1. Demo Mode
+- Loads AMS 691 sample project data
+- Shows demo video, thumbnail, project.md, GitHub PR, feedback form reminders, etc.
+
+2. Custom Workspace Mode
+- Uses user-created or pasted data
+- Custom data must override demo data everywhere
+
+If the user adds or edits any custom content, automatically switch the app to Custom Workspace Mode.
+
+Dashboard, Tasks, AI Assistant, Announcement Center, Collaboration Hub, Resource Manager, Assignment Tracker, and Feedback Helper must all use the current active workspace data.
+
+Never show AMS 691 tasks unless Demo Mode is currently active.
+
+Add a visible badge somewhere in the UI:
+- “Demo Mode: AMS 691 Sample Data”
+or
+- “Custom Workspace Mode”
+
+Add controls:
+- Load Demo Data
+- Clear Workspace
+- Switch to Custom Workspace
+
+Behavior:
+- Load Demo Data intentionally loads AMS 691 sample data.
+- Clear Workspace removes localStorage data after confirmation.
+- Creating custom content switches to Custom Workspace Mode.
+
+==================================================
+2. ANNOUNCEMENT CENTER
+==================================================
+
+Create or improve a page/section called:
+
+Announcement Center
+
+This replaces the idea that Brightspace is only a paste box.
+
+Features:
+- User can create a course announcement directly inside UniFlow.
+- Announcement fields:
+  - course name
+  - title
+  - announcement body
+  - source label: Brightspace, Instructor, TA, Manual
+  - date
+  - optional due date
+  - priority: Low, Medium, High
+- Save announcements to localStorage.
+- Display announcements as clean cards.
+- Keep paste input as an optional quick-import feature.
+- Add button: “Analyze Announcements”
+
+When user pastes or creates a new announcement:
+- Save the exact text in app state and localStorage
+- Switch to Custom Workspace Mode
+- Analyze should use this content, not AMS 691 demo content
+
+Test announcement:
+
+“AMS 597 students: Homework 4 is due on May 15 at 11:59 PM. Please upload your R Markdown file and PDF report to Brightspace. Quiz 3 will open next Monday and will cover Monte Carlo simulation and EM algorithm.”
+
+Expected extracted tasks:
+- Submit Homework 4
+- Upload R Markdown file and PDF report
+- Prepare for Quiz 3
+- Review Monte Carlo simulation and EM algorithm
+
+==================================================
+3. COLLABORATION HUB
+==================================================
+
+Replace the old Discord paste-box idea with an internal Discord-style page called:
+
+Collaboration Hub
+
+Purpose:
+Students should be able to announce, discuss, collaborate, ask questions, share experiences, and help each other directly inside UniFlow instead of needing to copy/paste from Discord.
+
+Features:
+- Students can create posts/messages inside the app.
+- Each post should have:
+  - author name
+  - channel/category
+  - message content
+  - timestamp
+  - optional tag: Question, Resource, Reminder, Experience, Help Needed, Feedback
+- Default channels:
+  - General
+  - Assignment Help
+  - Project Discussion
+  - Presentation Feedback
+  - Resources
+- Users can add a new message.
+- Messages save to localStorage.
+- Display messages in clean chat/thread style UI.
+- Add sample demo messages for AMS 691.
+- Add button: “Analyze Discussion”
+
+Example collaboration messages:
+- “Has anyone uploaded the demo video to Google Drive yet?”
+- “Reminder: project.md should be placed directly in our GitHub folder.”
+- “I found the ACL demo guidelines useful for structuring the video.”
+- “Can someone explain what should go inside the LLM components section?”
+- “After each presentation, remember to submit feedback with best part and improvement.”
+
+The AI Assistant should answer questions using these discussion messages.
+
+==================================================
+4. RESOURCE MANAGER
+==================================================
+
+Improve the Google Drive section into:
+
+Resource Manager
+
+Purpose:
+Instead of needing real Google Drive integration, users can manually add Drive-style resources and links.
+
+Features:
+- User can add a resource manually.
+- Resource fields:
+  - title
+  - resource type: Document, Slides, Video, Image, Dataset, Code, Other
+  - link / URL
+  - short description
+  - related course
+  - related task/deadline if any
+- Save resources to localStorage.
+- Display resources as cards or a table.
+- Add copy/open link button.
+- Add warning if link field is empty.
+- Add sample Google Drive-style resources:
+  - Demo Video
+  - Thumbnail Image
+  - Project Guidelines
+  - Presentation Slides
+  - Dataset
+  - Final Report
+
+Clearly state in the UI or About page:
+“Prototype uses manually added resource links. Future versions can connect to Google Drive API.”
+
+AI behavior:
+- /api/analyze should read resource titles and descriptions.
+- If a resource says “demo video due May 10,” extract it as a task.
+- If a resource is missing a required link, show it as incomplete.
+- AI Assistant should answer:
+  - “Which resources have I uploaded?”
+  - “Which links are still missing?”
+  - “Do I have the demo video and thumbnail ready?”
+
+==================================================
+5. ASSIGNMENT TRACKER
+==================================================
+
+Create or improve an Assignment Tracker section.
+
+Features:
+- Add assignment manually.
+- Fields:
+  - course
+  - assignment title
+  - due date
+  - submission platform
+  - status: Not Started, In Progress, Submitted
+  - notes
+- Save assignments to localStorage.
+- Display assignments in Tasks page and Dashboard.
+- AI Assistant should include these when answering weekly planning questions.
+
+==================================================
+6. TASKS PAGE
+==================================================
+
+Tasks page should update from the current workspace data.
+
+Tasks should come from:
+- announcements
+- collaboration messages
+- resources
+- assignments
+- feedback notes
+- pasted source text
+- demo data only when Demo Mode is active
+
+Each task should show:
+- task title
+- source
+- due date
+- priority
+- status
+- short explanation
+- confidence score
+
+Add filters:
+- source
+- priority
+- status
+
+Add ability to:
+- mark complete
+- mark incomplete
+
+Important:
+If I paste or create a new custom announcement and click Analyze, the task list should change accordingly.
+It should not keep showing AMS 691 demo tasks.
+
+==================================================
+7. FEEDBACK HELPER
+==================================================
+
+Keep the Feedback Helper because this course requires students to submit reviews after each presentation.
+
+Features:
+- presenter name
+- project/app title
+- best part of presentation
+- improvement suggestion
+- clarity rating from 1 to 5
+- demo quality rating from 1 to 5
+- usefulness/impact rating from 1 to 5
+- optional notes
+- AI button: “Polish Feedback”
+- copy-to-clipboard button
+- save feedback locally
+- show saved feedback reviews
+
+Output format:
+
+Best part:
+Improvement suggestion:
+Overall feedback:
+
+Connect Feedback Helper to the workspace:
+- saved feedback should appear as workspace data
+- dashboard should show pending or saved feedback reviews
+- Collaboration Hub should have a Presentation Feedback channel
+- AI Assistant should answer:
+  - “Which presentation feedback have I written?”
+  - “Help me write feedback for this presentation.”
+  - “What improvement suggestion can I give politely?”
+
+==================================================
+8. AI ASSISTANT
+==================================================
+
+Fix AI Assistant so it answers based on current active workspace data.
+
+It should consider:
+- announcements
+- collaboration posts
+- resources
+- assignments
+- tasks
+- feedback reviews
+- pasted text
+- demo data only if Demo Mode is active
+
+Examples:
+
+If user asks:
+“What should I complete this week?”
+Answer using current tasks and deadlines only.
+
+If user asks:
+“What links are missing?”
+Check resources and required files.
+
+If user asks:
+“What did classmates discuss?”
+Summarize Collaboration Hub messages.
+
+If user asks:
+“What announcements were posted?”
+Summarize Announcement Center.
+
+If user asks:
+“What feedback should I submit?”
+Use Feedback Helper context.
+
+Do not answer with AMS 691 demo tasks unless active mode is Demo Mode.
+
+==================================================
+9. FIX /api/analyze
+==================================================
+
+/api/analyze must analyze all current workspace data:
+- announcements
+- pasted source text
+- collaboration messages
+- resource links/descriptions
+- assignments
+- feedback notes
+
+It must not always return AMS 691 hardcoded tasks.
+
+If OpenAI or Anthropic API key is available, use it.
+If no API key is available, use a deterministic generic fallback analyzer that actually reads the input data.
+
+Fallback analyzer rules:
+
+Extract tasks from words like:
+- due
+- deadline
+- submit
+- upload
+- complete
+- finish
+- quiz
+- exam
+- assignment
+- project
+- presentation
+- feedback
+- review
+- form
+- discussion
+- reading
+- resource
+- link
+
+Extract dates from formats like:
+- May 10
+- May 10, 2026
+- 5/10
+- 05/10/2026
+- tomorrow
+- next week
+- Sunday
+- 11:59 PM
+
+Assign priority:
+- High if text contains due, deadline, final, exam, submit, upload
+- Medium if text contains assignment, quiz, presentation, review, feedback, resource
+- Low otherwise
+
+Assign source:
+- Announcement Center
+- Collaboration Hub
+- Resource Manager
+- Assignment Tracker
+- Feedback Helper
+- Demo Data
+
+If no tasks are found, say:
+“No actionable task detected from current workspace data.”
+
+Never show AMS 691 tasks unless demo data is loaded and active.
+
+==================================================
+10. FIX /api/chat
+==================================================
+
+/api/chat should answer questions based on current workspace data.
+
+It should receive or access:
+- current mode
+- announcements
+- collaboration messages
+- resources
+- assignments
+- tasks
+- feedback reviews
+
+If no API key is available, use a high-quality fallback response generator based on current workspace data.
+
+Important:
+Do not use AMS 691 fallback answers unless Demo Mode is active.
+
+==================================================
+11. DASHBOARD
+==================================================
+
+Update Dashboard to show a real unified workspace summary:
+
+Cards:
+- current mode: Demo Mode or Custom Workspace Mode
+- announcement count
+- collaboration message count
+- resource count
+- assignment count
+- pending tasks
+- upcoming deadlines
+- missing links/resources
+- pending or saved presentation feedback
+- weekly AI plan
+
+Dashboard should update automatically after:
+- adding custom announcement
+- adding collaboration message
+- adding resource
+- adding assignment
+- saving feedback
+- running Analyze
+
+==================================================
+12. NAVIGATION
+==================================================
+
+Update navigation to:
+
+- Dashboard
+- Announcement Center
+- Collaboration Hub
+- Resource Manager
+- Assignment Tracker
+- Tasks
+- AI Assistant
+- Feedback Helper
+- About
+
+Make sure all navigation links work.
+
+==================================================
+13. ABOUT PAGE
+==================================================
+
+Update About page to explain the improved product.
+
+Problem:
+Students lose track of course updates because announcements, Drive links, Discord messages, assignments, and feedback forms are scattered.
+
+Solution:
+UniFlow provides one AI-powered course workspace where students can create announcements, share resources, collaborate like a Discord server, track assignments, ask AI questions, and generate feedback reviews.
+
+LLM Components:
+- announcement summarization
+- task/deadline extraction
+- workspace Q&A
+- discussion summarization
+- resource completeness checking
+- feedback polishing
+- weekly planning
+
+Limitations:
+- Current version uses localStorage and manually added links.
+- It does not connect to real Brightspace, Discord, Google Drive, or Google Forms APIs yet.
+- Future versions can add live integrations.
+
+==================================================
+14. UPDATE project.md
+==================================================
+
+Update project.md for AMS 691 showcase submission.
+
+Title:
+UniFlow: AI-Powered Unified Course Workspace
+
+Tagline:
+A unified AI workspace that turns course announcements, discussions, resources, assignments, and feedback into actionable plans.
+
+Include:
+- problem
+- solution
+- user flow
+- LLM components
+- tools used
+- limitations
+- future work
+- placeholder videoUrl
+- placeholder thumbnailUrl
+
+Mention these features:
+- Announcement Center
+- Collaboration Hub
+- Resource Manager
+- Assignment Tracker
+- AI Assistant
+- Feedback Helper
+
+Be honest:
+This is a working prototype with localStorage, sample data, and manually added workspace data. Future versions could connect to Brightspace, Discord, Google Drive, and Google Forms APIs.
+
+==================================================
+15. QUALITY CHECK BEFORE FINISHING
+==================================================
+
+Before finishing, make sure:
+
+- App runs in Replit preview
+- No TypeScript errors
+- No broken imports
+- All buttons work
+- All navigation links work
+- localStorage persistence works
+- Custom data overrides demo data
+- Dashboard updates after adding custom data
+- Tasks update after analyzing custom data
+- AI Assistant answers using current workspace data
+- Fallback AI works without API keys
+- Demo Mode still works
+- Custom Workspace Mode works
+- UI stays polished, modern, and demo-ready
+
+==================================================
+16. FINAL TEST FLOW
+==================================================
+
+After making changes, test this flow:
+
+1. Clear Workspace
+2. Add this custom announcement:
+
+“AMS 597 students: Homework 4 is due on May 15 at 11:59 PM. Please upload your R Markdown file and PDF report to Brightspace. Quiz 3 will open next Monday and will cover Monte Carlo simulation and EM algorithm.”
+
+3. Add one Collaboration Hub message:
+
+“Reminder: Quiz 3 opens next Monday. We should review Monte Carlo simulation and EM algorithm.”
+
+4. Add one Resource Manager link:
+
+Title: Homework 4 Report
+Type: Document
+Link: leave empty first
+Description: R Markdown and PDF report for Homework 4 due May 15.
+
+5. Add one assignment:
+
+Course: AMS 597
+Assignment: Homework 4
+Due date: May 15 at 11:59 PM
+Platform: Brightspace
+Status: In Progress
+
+6. Run Analyze
+7. Open Dashboard
+8. Open Tasks
+9. Ask AI Assistant:
+
+“What should I complete this week?”
+
+Expected result:
+The app should mention Homework 4, R Markdown/PDF upload, Quiz 3, Monte Carlo simulation, EM algorithm, and missing Homework 4 resource link.
+
+It should NOT mention AMS 691 demo video, thumbnail, project.md, or GitHub PR unless Demo Mode is loaded.

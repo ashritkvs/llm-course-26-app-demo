@@ -1,0 +1,1711 @@
+
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{float}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit}
+
+\title{ExamProfile AI \\ \large Professor-Modeled Exam Generation and Weakness Analytics for STEM Courses}
+\author{Project Specification}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+\section{Executive Summary}
+ExamProfile AI is a STEM-focused, web-first exam simulation and weakness analytics platform that ingests course materials such as lecture slides, homework sets, and prior exams to build a structured Professor Profile of instructor assessment tendencies. Using this profile and a retrieval-augmented generation pipeline, the system produces course-specific practice problems, simulated exams, structured grading outputs, and adaptive targeted practice recommendations.
+
+The platform is designed to function as an exam simulation engine rather than a generic chatbot tutor. Its core differentiators include evidence-weighted professor modeling, multi-stage quality-controlled generation, diagnostically structured grading, and concept-level weakness analytics that feed an adaptive practice loop.
+
+\section{One-Sentence Pitch}
+ExamProfile AI is a web-first exam simulation and weakness analytics platform that learns instructor tendencies from real course materials, generates novel-but-aligned simulated exams, and provides diagnostically structured feedback to drive targeted preparation.
+
+\section{Overview}
+ExamProfile AI is a STEM-focused, web-first application for exam simulation and weakness analytics. It ingests course materials such as lecture slides, homework sets, and prior exams to generate course-specific practice problem sheets, simulated exams, and answer keys. The primary delivery surface is intended to be a web application, while keeping product language flexible enough to support a desktop client in the future.
+
+Unlike generic AI study tools, ExamProfile AI builds a structured \textbf{Professor Profile}: an evidence-weighted model of instructor tendencies and course assessment patterns (e.g., recurring topics, typical question formats, exam structure, and estimated difficulty tendencies). Topic emphasis is treated as informative rather than deterministic; if course evidence strongly emphasizes a topic (such as probability), generated exams should generally reflect that tendency while preserving realistic variety. Stronger evidence signals (e.g., past exams, practice tests, explicit instructor guidance, or user-provided prompts/comments) are intended to be weighted more heavily than weak signals (e.g., a single homework problem).
+
+Generation and evaluation are intended to be multi-stage and quality-controlled (generation, review, validation, and refinement), rather than a one-shot ``generate an exam'' prompt. Students submit answers and receive diagnostically useful feedback (not only correct/incorrect), including structured error classifications that support concept-level weakness analytics and targeted follow-up practice.
+
+\section{Problem}
+Students preparing for exams face several recurring issues:
+
+\begin{itemize}
+\item Generic AI-generated practice is rarely course-specific; it does not reliably reflect an instructor's exam structure, pacing, grading style, or concept emphasis as inferred from real course materials.
+\item Typical LLM study tools often produce shallow variants that restate known problems with minor wording or numeric changes, which does not adequately prepare students for new but conceptually aligned exam questions.
+\item Existing tools frequently fail to reproduce realistic exam construction (e.g., section structure, question-type distribution, and difficulty progression) and may generate multiple-choice questions with repetitive or predictable answer-position patterns.
+\item Feedback is commonly limited to correctness labels or generic explanations and is not diagnostically structured (e.g., it does not identify wrong method selection versus formula misuse versus computation versus interpretation errors).
+\end{itemize}
+
+Because of this, students often study inefficiently and cannot reliably simulate real exam conditions.
+
+\section{Product Vision}
+The goal of ExamProfile AI is to create a system that:
+\begin{itemize}
+\item Ingests real course materials to learn course scope and assessment patterns
+\item Builds and maintains a structured, evidence-weighted Professor Profile that informs (but does not rigidly dictate) generation
+\item Produces simulated exams and practice sets that are intended to be novel-but-aligned with instructor style, structure, and concept emphasis (avoiding obvious paraphrases unless explicitly requested)
+\item Grades submissions with diagnostically useful, structured feedback beyond correct/incorrect, identifying what was correct, which method was misapplied, and what conceptual weakness is suggested
+\item Iterates a preparation loop: ingest materials $\rightarrow$ model tendencies $\rightarrow$ generate practice $\rightarrow$ diagnose performance $\rightarrow$ update weakness signals $\rightarrow$ regenerate targeted practice
+\item Uses a multi-stage generation, review, validation, and refinement pipeline to improve realism and reduce brittle one-shot outputs (later sections specify these mechanisms in detail)
+\end{itemize}
+
+The system is designed to operate as an \textbf{exam simulation engine} grounded in course evidence, not as a generic chatbot tutor and not as a replacement for instruction.
+
+\section{Target Users}
+Primary users include:
+\begin{itemize}
+\item College students in quantitative, structured STEM courses preparing for midterms and finals
+\item Students who can provide course materials (slides, homework, prior exams) and want course-specific, professor-aligned exam simulation
+\item Students who need diagnostically structured feedback on methods, formulas, and reasoning patterns (not only correctness labels)
+\end{itemize}
+
+Initial focus domains include:
+\begin{itemize}
+\item Statistics and probability
+\item Applied mathematics
+\item Chemistry and physics
+\item Computational biology
+\item Computer science courses with structured assessments
+\end{itemize}
+
+The initial focus is optimized for structured, quantifiable subjects where methods, formulas, and reasoning patterns can be evaluated consistently; it is not initially targeted at essay-heavy or primarily subjective disciplines.
+
+\section{Key Differentiators}
+\begin{enumerate}
+\item \textbf{Professor Modeling}
+Builds a structured Professor Profile capturing instructor tendencies and course patterns (topic emphasis, question-type distribution, exam structure, and estimated difficulty tendencies), using an evidence-weighted approach that prioritizes stronger signals (e.g., past exams) when available.
+
+\item \textbf{Distribution-Aware Exam Generation}
+Generates simulated exams informed by observed topic emphasis and structure without mechanically matching exact topic percentages. The system aims to create new, non-trivially distinct questions that are aligned with instructor style and avoids shallow paraphrases by default. For multiple-choice questions, generation aims for intentionally balanced, realistic construction (including avoiding repetitive or predictable answer-position patterns).
+
+\item \textbf{Multi-Stage Quality-Controlled Generation}
+Uses a layered generation pipeline rather than a single LLM call. Draft questions and exams can be reviewed, validated, and refined before delivery to improve reliability and to reduce shallow reformulations and recurring formatting artifacts.
+
+\item \textbf{Scope-Aware Filtering}
+Supports constraints such as ``Only review Notes 3--8'' or ``Focus on hypothesis testing'' to prevent out-of-scope generation and to focus practice on a defined portion of the course.
+
+\item \textbf{Concept-Level Weakness Analytics}
+Provides diagnostically structured grading signals (e.g., wrong method selection, formula misuse, computational mistakes, interpretation errors) to identify concept-level weaknesses. Weakness analytics guide targeted regeneration of follow-up practice, reinforcing the exam-preparation loop rather than producing one-off problem sets.
+\end{enumerate}
+
+\section{User Workflows}
+
+\subsection{Material Upload Workflow}
+Users begin by uploading course materials that will serve as the evidence base for course modeling and exam generation. Supported material types include:
+\begin{itemize}
+\item Lecture slides
+\item Homework assignments
+\item Prior exams
+\item Practice tests or review sheets
+\item Optional user notes or instructor-provided guidance
+\end{itemize}
+
+Supported file formats may include PDF, PowerPoint, Word documents, and plain text files.
+
+During upload, users may label documents (e.g., ``Midterm 1'', ``Homework 4'', ``Notes 3--8'') and may optionally provide prompts or scope constraints such as:
+\begin{itemize}
+\item ``Focus on hypothesis testing''
+\item ``Only review Notes 3--8''
+\item ``Prioritize midterm-style questions''
+\end{itemize}
+
+Users may also provide optional instructor guidance such as syllabus descriptions, exam policies, or explicit hints about exam structure. These inputs are treated as strong evidence signals during Professor Profile construction.
+
+After upload, the system stores the materials and validates them for processing. The system presents processing status indicators (e.g., uploaded, parsing, indexed, ready) so users can track when materials are available for generation workflows.
+
+\subsection{Professor Profile Construction Workflow}
+Once materials are uploaded, the system analyzes them to construct a \textbf{Professor Profile}, which serves as a structured, evidence-weighted model of course assessment tendencies. The system is intended to infer signals such as:
+\begin{itemize}
+\item Recurring topics and concept emphasis
+\item Common question types
+\item Observed exam structure patterns
+\item Estimated difficulty tendencies
+\end{itemize}
+
+Not all evidence is treated equally. When available, stronger sources such as prior exams, practice tests, explicit instructor guidance, or user-provided prompts should influence the profile more heavily than weaker sources such as isolated examples or a single homework problem.
+
+The resulting profile is intended to inform downstream generation while remaining flexible; inferred tendencies guide the system but do not rigidly determine exact output composition.
+
+\subsection{Insights and Profile Review Workflow}
+After profile construction, the system presents a summary of the inferred course structure so that users can review how the materials were interpreted. This insights view is intended to improve transparency and trust before generation begins.
+
+The system may display:
+\begin{itemize}
+\item Extracted topic groupings
+\item Relative topic emphasis
+\item Detected question-type tendencies
+\item Inferred exam structure patterns
+\item Notes about strong or weak evidence sources
+\end{itemize}
+
+This step allows the user to confirm whether the system's interpretation appears reasonable before requesting practice materials or simulated exams.
+
+\subsection{Practice Problem Generation Workflow}
+Users may request targeted practice problems instead of a full simulated exam. Practice generation is designed for focused preparation on a subset of the course rather than full exam simulation.
+
+Users may specify generation controls such as:
+\begin{itemize}
+\item Topic or scope constraints
+\item Number of questions
+\item Preferred difficulty range
+\item Question type (e.g., multiple-choice, free response, calculation-focused)
+\end{itemize}
+
+In response, the system generates a practice set intended to be aligned with the inferred professor style and course evidence while remaining novel and non-trivially distinct from source materials by default. The system also provides answer keys and supporting explanations where appropriate.
+
+\subsection{Practice Exam Generation Workflow}
+Users may request a full simulated exam when they want a more realistic assessment experience. Exam generation is intended to reflect course evidence, inferred structure, and user-selected format settings.
+
+Users may configure:
+\begin{itemize}
+\item Multiple-choice only
+\item Free-response only
+\item Mixed mode with a custom ratio
+\item Approximate exam length or question count
+\item Scope constraints for included material
+\end{itemize}
+
+The system then generates a simulated exam that aims to reflect the instructor's style, topic emphasis, structure, and approximate difficulty tendencies without mechanically reproducing existing materials. Where appropriate, the exam experience may include structured sections and a user-facing submission interface.
+
+\subsection{Submission and Grading Workflow}
+After completing a practice set or simulated exam, students submit their answers through the interface for evaluation. The grading workflow is intended to provide more than a binary correct/incorrect result.
+
+The system evaluates responses and produces structured feedback such as:
+\begin{itemize}
+\item Correctness or partial correctness
+\item Wrong method selection
+\item Formula misuse
+\item Computational mistake
+\item Interpretation or reasoning error
+\end{itemize}
+
+Where possible, grading should also indicate what portion of the student's reasoning was correct, what failed, and which conceptual weakness is suggested by the response pattern.
+
+\subsection{Weakness Analytics Workflow}
+The system aggregates grading outcomes into a user-facing weakness analytics view. This workflow is intended to help students identify patterns across multiple submissions rather than treating each problem set as an isolated event.
+
+The analytics view may include:
+\begin{itemize}
+\item Concept mastery heatmaps
+\item Error-type breakdowns
+\item Performance by topic
+\item Performance by question type
+\item Trends across repeated practice sessions
+\end{itemize}
+
+These analytics are intended to reveal which concepts are weak, which types of mistakes recur, and where additional targeted preparation is likely to be most useful.
+
+\subsection{Targeted Practice Regeneration Workflow}
+Based on observed weaknesses, users may request targeted follow-up practice. This workflow closes the adaptive preparation loop by using prior performance to influence what should be practiced next.
+
+The system selects weak concepts, error-prone areas, or underperforming question types and generates follow-up material that is more focused than a general practice set. For example, if repeated submissions indicate difficulty with hypothesis testing or integration techniques, the next practice set should concentrate more heavily on those areas.
+
+This regeneration workflow is intended to help students improve iteratively over time, transforming the system from a one-off generator into an adaptive exam-preparation platform.
+
+\section{System Architecture}
+
+\subsection{Architecture Overview}
+ExamProfile AI is designed as a \textbf{web-first, modular application architecture} that separates user interaction, application orchestration, document processing, professor modeling, retrieval, generation, grading, and analytics into distinct logical components. The system is intended to support a clean end-to-end workflow from course material upload through simulated exam generation, submission evaluation, and adaptive practice regeneration.
+
+For the initial implementation, the platform is best structured as a \textbf{modular monolith} rather than a fully distributed microservice system. In this model, the frontend, backend API, and internal service modules remain clearly separated by responsibility, but the backend can still be deployed as a single FastAPI-based application for simplicity, maintainability, and faster iteration during MVP development. This design reduces deployment and debugging complexity while preserving service boundaries that can later be split into independent services if scale or operational needs require it.
+
+At a high level, the architecture is composed of the following layers:
+\begin{itemize}
+\item Frontend client layer
+\item Application API and orchestration layer
+\item Core backend service layer
+\item Storage and indexing layer
+\item External AI and parsing dependency layer
+\end{itemize}
+
+These layers work together to support three major system loops:
+\begin{itemize}
+\item \textbf{Course modeling loop}: upload materials $\rightarrow$ parse and normalize $\rightarrow$ construct Professor Profile
+\item \textbf{Exam simulation loop}: retrieve relevant evidence $\rightarrow$ generate practice or exams $\rightarrow$ deliver structured output
+\item \textbf{Adaptive improvement loop}: collect submissions $\rightarrow$ grade diagnostically $\rightarrow$ update analytics $\rightarrow$ regenerate targeted practice
+\end{itemize}
+
+\subsection{Frontend Layer}
+The frontend serves as the primary user-facing interaction surface for ExamProfile AI. In the initial system design, it is implemented as a web client built with React and TypeScript, styled using Tailwind CSS and Shadcn/ui, with Recharts used for analytics visualization.
+
+The frontend is responsible for:
+\begin{itemize}
+\item User authentication and session-based interaction
+\item File upload interfaces for course materials
+\item Document labeling and scope-selection controls
+\item Profile insights and review screens
+\item Practice problem and simulated exam configuration interfaces
+\item Question display and answer submission interfaces
+\item Weakness analytics dashboards and trend views
+\item Targeted practice request controls
+\end{itemize}
+
+The frontend should remain focused on \textbf{presentation, interaction, and workflow control} rather than embedding business logic or AI decision-making. All substantive operations related to parsing, retrieval, generation, grading, and analytics should be performed by backend services and surfaced to the frontend through structured API responses.
+
+This separation ensures that the frontend remains replaceable and that future platform variants (e.g., a desktop client) can reuse the same backend architecture.
+
+\subsection{Application API Layer}
+The backend entry point is the \textbf{Application API Layer}, implemented using FastAPI. This layer acts as the primary control plane for the system and is responsible for coordinating requests between the frontend and the internal backend services.
+
+The API layer is responsible for:
+\begin{itemize}
+\item Receiving and validating requests from the frontend
+\item Managing authentication and user-level access control
+\item Dispatching requests to the appropriate internal services
+\item Returning structured responses for uploads, generation, grading, and analytics
+\item Managing long-running or asynchronous processing workflows where necessary
+\item Enforcing input constraints, scope filters, and generation settings
+\end{itemize}
+
+The API layer should not contain the full internal logic for parsing, retrieval, grading, or analytics computation. Instead, it should coordinate those responsibilities through clearly defined internal modules or services. This makes the backend easier to maintain and reduces the risk of turning the API layer into a single, tightly coupled logic hub.
+
+\subsection{Core Backend Service Layer}
+The core backend service layer contains the domain-specific modules that implement the system's core functionality. Even if the initial system is deployed as a modular monolith, these services should be treated as distinct architectural units with clear boundaries.
+
+\subsubsection{Document Processing Service}
+The Document Processing Service is responsible for transforming uploaded materials into structured, machine-usable representations. This service handles the transition from raw course documents to normalized text and structural units that can later support indexing, retrieval, and professor modeling.
+
+Its responsibilities include:
+\begin{itemize}
+\item Receiving uploaded files from the application layer
+\item Validating file integrity and supported formats
+\item Invoking layout-aware parsing tools such as Docling or Marker
+\item Normalizing parser outputs into a consistent internal representation
+\item Preserving useful structural cues such as headings, problem boundaries, lists, and equation-bearing sections where possible
+\item Preparing parsed documents for downstream indexing and Professor Profile construction
+\end{itemize}
+
+This service should be isolated because parsing academic and STEM-heavy documents is error-prone and may require iterative improvement over time. By separating it from the rest of the backend logic, the system can evolve parsing strategies independently without disrupting generation, grading, or analytics functionality.
+
+\subsubsection{Professor Profile Service}
+The Professor Profile Service is responsible for constructing and maintaining the structured model of instructor tendencies and course assessment patterns that differentiates ExamProfile AI from generic AI study tools.
+
+Its responsibilities include:
+\begin{itemize}
+\item Aggregating evidence from uploaded and parsed materials
+\item Inferring recurring topics and concept emphasis
+\item Estimating question-type tendencies
+\item Inferring exam structure patterns from past assessments and related materials
+\item Estimating approximate difficulty tendencies
+\item Weighting evidence sources differently based on their reliability and relevance
+\item Updating the Professor Profile as new materials are added
+\end{itemize}
+
+This service should treat inferred distributions as \textbf{evidence-weighted tendencies} rather than rigid generation rules. For example, heavy topic emphasis in uploaded materials may influence simulated exam composition without forcing exact proportional reproduction. Similarly, past exams or explicit instructor guidance should be treated as stronger signals than isolated examples or single homework problems.
+
+Architecturally, this service serves as the bridge between raw course evidence and downstream generation logic.
+
+\subsubsection{Retrieval Service}
+The Retrieval Service is responsible for finding the most relevant course evidence to support generation, grading context, and targeted practice workflows. It sits between indexed material storage and the generation/grading layers.
+
+Its responsibilities include:
+\begin{itemize}
+\item Executing semantic retrieval over indexed course materials
+\item Applying metadata-based filters such as topic scope, document origin, or assessment type
+\item Using user constraints (e.g., ``Only review Notes 3--8'') to narrow retrieval
+\item Supplying grounded evidence to question generation and answer evaluation workflows
+\item Supporting retrieval for both general practice generation and targeted weakness-driven regeneration
+\end{itemize}
+
+Retrieval should be treated as a distinct service rather than a hidden subroutine inside generation. This separation makes it easier to improve ranking strategies, scope enforcement, metadata filtering, and evidence selection without entangling those concerns with question synthesis itself.
+
+\subsubsection{Generation Service}
+The Generation Service is responsible for producing practice problems, simulated exams, answer keys, and related output artifacts. This service consumes retrieved evidence, Professor Profile context, and user-controlled generation settings.
+
+Its responsibilities include:
+\begin{itemize}
+\item Generating targeted practice problems
+\item Generating full simulated exams
+\item Respecting user-selected question modes such as multiple-choice, free response, or mixed mode
+\item Conditioning output on scope constraints, inferred professor tendencies, and difficulty targets
+\item Producing answer keys and explanations where appropriate
+\item Supporting multi-stage review, validation, and refinement before final delivery
+\end{itemize}
+
+This service should not be designed as a one-shot content generator. Instead, it should support a layered workflow in which draft outputs can be reviewed, checked for structural consistency, validated for novelty and realism, and refined before they are returned to the user. This principle is essential to the platform's quality goals and should remain visible in the architecture.
+
+\subsubsection{Grading Service}
+The Grading Service is responsible for evaluating student responses and converting them into structured grading outcomes rather than simple correctness labels.
+
+Its responsibilities include:
+\begin{itemize}
+\item Evaluating submitted answers for correctness or partial correctness
+\item Supporting grading across multiple response types, including multiple-choice and free-response answers
+\item Identifying wrong method selection, formula misuse, computation errors, and interpretation errors where possible
+\item Producing structured grading results that can be consumed by the analytics layer
+\item Mapping answer failures to concepts or skill categories when possible
+\item Returning diagnostically useful explanations rather than binary judgments alone
+\end{itemize}
+
+This service is a central part of the adaptive learning loop because it converts raw student answers into structured signals that can later inform weakness analytics and targeted regeneration.
+
+\subsubsection{Analytics Service}
+The Analytics Service is responsible for aggregating performance data over time and transforming individual grading events into concept-level and course-level insights.
+
+Its responsibilities include:
+\begin{itemize}
+\item Aggregating grading outcomes across submissions
+\item Tracking performance by topic, concept, question type, and difficulty
+\item Generating concept mastery indicators
+\item Computing recurring error-type patterns
+\item Updating user-facing dashboard summaries
+\item Identifying weak concepts and suggesting where targeted practice should focus next
+\end{itemize}
+
+The Analytics Service should function as the system's longitudinal memory of user performance. Rather than treating each submission as an isolated event, it should maintain a running view of strengths, weaknesses, and recurring error patterns across repeated practice sessions.
+
+\subsection{Storage and Data Layer}
+ExamProfile AI requires multiple forms of storage because the system manages uploaded files, structured relational data, indexed semantic content, and generated artifacts.
+
+\subsubsection{Relational Data Store}
+A relational database, implemented using Supabase/PostgreSQL, should serve as the system of record for structured application data.
+
+This layer should store entities such as:
+\begin{itemize}
+\item Users and authentication-linked metadata
+\item Courses or study workspaces
+\item Uploaded document metadata
+\item Parsing and indexing job status
+\item Professor Profile summaries and versioned profile metadata
+\item Generated practice sets and simulated exams
+\item Student submissions and grading outputs
+\item Analytics summaries and regeneration history
+\end{itemize}
+
+The relational store provides consistency, structured querying, and transactional safety for application-level entities.
+
+\subsubsection{Vector Storage Layer}
+A vector-capable storage layer is required to support semantic retrieval over parsed course materials. This may be implemented using ChromaDB for development and testing, with optional migration to Pinecone or a similar managed vector service in later deployments. Depending on architectural preference, pgvector within PostgreSQL may also be used for certain integrated workflows.
+
+This layer should store:
+\begin{itemize}
+\item Embedded document chunks
+\item Retrieval metadata associated with chunks
+\item Semantic search indices used by the Retrieval Service
+\end{itemize}
+
+This layer is logically distinct from the relational database even if some infrastructure choices overlap, because its role is optimized retrieval rather than transactional application storage.
+
+\subsubsection{File and Artifact Storage}
+A separate file or object storage layer is needed for:
+\begin{itemize}
+\item Raw uploaded documents
+\item Parsed intermediate artifacts
+\item Generated output exports such as PDFs or rendered exam files
+\item Supporting attachments or supplementary materials
+\end{itemize}
+
+This separation prevents the relational database from becoming overloaded with large binary files and makes it easier to manage raw source materials and generated outputs independently.
+
+\subsection{External Dependency Layer}
+ExamProfile AI relies on several external tools and APIs that should be treated as dependencies invoked by internal services rather than as direct user-facing system components.
+
+\subsubsection{Document Parsing Dependencies}
+Layout-aware parsing tools such as \textbf{Docling} and \textbf{Marker} are used by the Document Processing Service to convert complex academic files into structured text suitable for downstream indexing and retrieval workflows.
+
+These tools should remain abstracted behind the Document Processing Service so that the system can switch parsing strategies, add fallbacks, or improve parser selection logic without affecting the frontend or the API layer.
+
+\subsubsection{LLM Dependency Layer}
+The Generation Service and Grading Service depend on a large language model API, currently specified as Gemini 1.5 Flash, for grounded question generation, explanation generation, grading interpretation, and structured feedback synthesis.
+
+The system should interact with the model API through backend service boundaries rather than calling the model directly from user-facing components. This design supports:
+\begin{itemize}
+\item prompt iteration and refinement
+\item centralized model configuration
+\item future model replacement or multi-model routing
+\item logging and quality-control workflows
+\end{itemize}
+
+\subsection{End-to-End Data Flow}
+The architecture supports several major end-to-end flows that connect the user-facing workflows to the internal system components.
+
+\subsubsection{Course Modeling Flow}
+The course modeling flow begins when a user uploads course materials through the frontend. The Application API Layer accepts the files, validates the request, and passes the materials to the Document Processing Service. Parsed and normalized results are stored in the appropriate storage layers, indexed for retrieval, and then analyzed by the Professor Profile Service. The resulting Professor Profile summary is persisted and surfaced back to the frontend through the profile insights workflow.
+
+Conceptually, this flow can be summarized as:
+\[
+\text{Upload} \rightarrow \text{Validate} \rightarrow \text{Parse} \rightarrow \text{Normalize} \rightarrow \text{Index} \rightarrow \text{Build Professor Profile}
+\]
+
+\subsubsection{Practice and Exam Generation Flow}
+When a user requests a practice set or simulated exam, the frontend sends the request and generation controls to the API layer. The API layer passes the request to the Retrieval Service and Generation Service. The Retrieval Service identifies relevant materials using semantic search and metadata filters, while the Generation Service combines retrieved evidence, Professor Profile context, and user constraints to produce the requested output. The generated result may pass through additional review or validation stages before it is stored and returned to the user.
+
+Conceptually, this flow can be summarized as:
+\[
+\text{User Request} \rightarrow \text{Retrieve Evidence} \rightarrow \text{Apply Profile and Scope Constraints} \rightarrow \text{Generate} \rightarrow \text{Validate} \rightarrow \text{Deliver}
+\]
+
+\subsubsection{Submission, Grading, and Analytics Flow}
+When a student submits answers, the frontend sends the response payload to the API layer, which passes it to the Grading Service. The Grading Service produces structured grading outputs and error classifications, which are then stored and forwarded to the Analytics Service. The Analytics Service updates user-facing weakness summaries, trend signals, and targeted practice recommendations. These analytics can then inform future regeneration requests.
+
+Conceptually, this flow can be summarized as:
+\[
+\text{Submit Answers} \rightarrow \text{Grade} \rightarrow \text{Classify Errors} \rightarrow \text{Update Analytics} \rightarrow \text{Recommend / Regenerate}
+\]
+
+\subsection{Architectural Design Principles}
+The system architecture is guided by several design principles that help keep the platform maintainable, extensible, and aligned with the product vision.
+
+\subsubsection{Separation of Concerns}
+Parsing, professor modeling, retrieval, generation, grading, and analytics are treated as distinct responsibilities. This separation reduces coupling, improves maintainability, and allows individual components to evolve independently.
+
+\subsubsection{Evidence-Grounded Operation}
+Generated questions, grading decisions, and targeted practice recommendations should be grounded in uploaded course materials and structured profile context rather than relying on unconstrained general-purpose model outputs.
+
+\subsubsection{Multi-Stage Quality Control}
+Generation and evaluation workflows should support layered review, validation, and refinement rather than one-shot model outputs wherever possible. This principle improves reliability, realism, and overall output quality.
+
+\subsubsection{Modularity with MVP Practicality}
+The architecture is intentionally modular, but the initial deployment should remain operationally simple. A modular monolith is preferred for early development so that the system remains easy to debug and deploy while preserving the option of service extraction later.
+
+\subsubsection{Extensibility}
+The architecture should support future additions such as:
+\begin{itemize}
+\item Desktop clients
+\item Additional document parsers
+\item Alternative or multiple LLM providers
+\item Expanded grading modes
+\item More sophisticated analytics and recommendation engines
+\end{itemize}
+
+\subsubsection{Traceability and Transparency}
+Where possible, the system should preserve visibility into why a profile was inferred, why specific material was retrieved, and why certain weaknesses were flagged. This principle supports user trust and makes the platform easier to debug and improve over time.
+
+\section{System Architecture Diagram}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.9cm and 0.9cm,
+    every node/.style={font=\small},
+    layer/.style={
+        rectangle,
+        rounded corners,
+        draw=black,
+        align=center,
+        minimum width=4.2cm,
+        minimum height=1.0cm
+    },
+    service/.style={
+        rectangle,
+        rounded corners,
+        draw=black,
+        align=center,
+        minimum width=3.5cm,
+        minimum height=0.9cm
+    },
+    datastore/.style={
+        cylinder,
+        shape border rotate=90,
+        draw=black,
+        align=center,
+        aspect=0.25,
+        minimum height=1cm,
+        minimum width=2.2cm
+    },
+    extdep/.style={
+        trapezium,
+        trapezium left angle=70,
+        trapezium right angle=110,
+        draw=black,
+        align=center,
+        minimum width=3.2cm,
+        minimum height=0.9cm
+    },
+    arrow/.style={
+        -{Latex[length=3mm]},
+        thick
+    }
+]
+
+% Top-level layers
+\node[layer] (frontend) {Frontend Layer\\React / TypeScript / Tailwind / Shadcn};
+\node[layer, below=of frontend] (api) {Application API Layer\\FastAPI};
+
+% Core services
+\node[service, below left=1.3cm and 3.2cm of api] (docproc) {Document Processing\\Service};
+\node[service, below=1.3cm of api] (profile) {Professor Profile\\Service};
+\node[service, below right=1.3cm and 3.2cm of api] (retrieve) {Retrieval\\Service};
+
+\node[service, below=1.2cm of profile] (generate) {Generation\\Service};
+\node[service, below left=1.2cm and 2.6cm of generate] (grading) {Grading\\Service};
+\node[service, below right=1.2cm and 2.6cm of generate] (analytics) {Analytics\\Service};
+
+% Storage
+\node[datastore, below left=1.7cm and 3.1cm of grading] (relational) {Relational Store\\Supabase / PostgreSQL};
+\node[datastore, below=1.7cm of generate] (vector) {Vector Store\\ChromaDB / pgvector / Pinecone};
+\node[datastore, below right=1.7cm and 3.1cm of analytics] (files) {File / Artifact\\Storage};
+
+% External dependencies
+\node[extdep, right=3.0cm of docproc] (parsers) {Docling / Marker\\Parsing Tools};
+\node[extdep, right=3.0cm of generate] (llm) {Gemini API\\LLM Layer};
+
+% Main flow arrows
+\draw[arrow] (frontend) -- (api);
+
+\draw[arrow] (api) -- (docproc);
+\draw[arrow] (api) -- (profile);
+\draw[arrow] (api) -- (retrieve);
+\draw[arrow] (api) -- (generate);
+\draw[arrow] (api) -- (grading);
+\draw[arrow] (api) -- (analytics);
+
+% Service interactions
+\draw[arrow] (docproc) -- (profile);
+\draw[arrow] (docproc) -- (retrieve);
+\draw[arrow] (retrieve) -- (generate);
+\draw[arrow] (profile) -- (generate);
+\draw[arrow] (grading) -- (analytics);
+\draw[arrow] (analytics) -- (generate);
+
+% Storage interactions
+\draw[arrow] (docproc) -- (files);
+\draw[arrow] (docproc) -- (relational);
+\draw[arrow] (docproc) -- (vector);
+
+\draw[arrow] (profile) -- (relational);
+\draw[arrow] (retrieve) -- (vector);
+\draw[arrow] (generate) -- (relational);
+\draw[arrow] (generate) -- (files);
+\draw[arrow] (grading) -- (relational);
+\draw[arrow] (analytics) -- (relational);
+
+% External dependency interactions
+\draw[arrow] (docproc.east) -- (parsers.west);
+\draw[arrow] (generate.east) -- (llm.west);
+\draw[arrow] (grading.east) -| (llm.west);
+
+\end{tikzpicture}
+\caption{Logical system architecture for ExamProfile AI, showing the web frontend, FastAPI orchestration layer, core backend services, storage components, and external parsing and LLM dependencies.}
+\end{figure}
+
+\section{Document Processing Layer}
+
+\subsection{Purpose}
+Course materials uploaded by users often contain complex formatting that is difficult for traditional text extraction tools to interpret reliably. STEM course materials frequently include mathematical equations, multi-column layouts, diagrams, tables, and structured problem statements. These features make naive PDF text extraction unreliable and can corrupt the instructional structure required for downstream retrieval and generation.
+
+The Document Processing Layer is responsible for converting uploaded materials into a consistent, structured representation that preserves semantic boundaries such as sections, definitions, worked examples, and problem statements. This structured representation forms the foundation for chunking, embedding, and retrieval workflows used throughout the system.
+
+\subsection{Why Layout-Aware Parsing is Required}
+Standard PDF parsers often extract text in reading-order sequences that ignore document layout. This can lead to several issues when processing academic materials:
+
+\begin{itemize}
+\item Mathematical expressions may be fragmented or reordered.
+\item Multi-column slide decks may interleave unrelated text segments.
+\item Problem statements and solution steps may be separated incorrectly.
+\item Tables or diagrams may produce meaningless text fragments.
+\end{itemize}
+
+Because the system relies on coherent instructional units for retrieval and generation, preserving document structure is essential. Layout-aware parsers analyze spatial relationships between text blocks, allowing the system to maintain logical document structure during conversion.
+
+\subsection{Parsing Tools}
+The system uses layout-aware document processing tools designed for complex academic content.
+
+\begin{itemize}
+\item \textbf{Docling (IBM)} --- Primary parser used to convert complex PDFs into structured Markdown or structured text representations suitable for LLM ingestion.
+\item \textbf{Marker} --- Secondary parser with strong support for mathematical notation and structured academic layouts. Marker may be used as a fallback when Docling produces low-confidence outputs.
+\item \textbf{Pandoc} --- Used primarily for converting generated Markdown content into export formats such as PDF when producing practice sets or simulated exams.
+\end{itemize}
+
+These tools are invoked through the Document Processing Service described in the System Architecture section.
+
+\subsection{Normalized Document Representation}
+After parsing, documents are converted into a normalized internal format that supports downstream processing. Each parsed document is represented as a structured sequence of segments that preserve meaningful instructional units.
+
+Typical elements preserved in the normalized representation include:
+
+\begin{itemize}
+\item Section headers
+\item Lecture subsections
+\item Problem statements
+\item Multi-part questions
+\item Worked examples
+\item Definition blocks
+\item Tables or structured lists
+\end{itemize}
+
+The normalized representation is typically stored in a Markdown-like structure with metadata fields describing the source document and structural boundaries.
+
+Example simplified representation:
+
+\begin{verbatim}
+Document
+  +-- Section: Hypothesis Testing
+  |     +-- Definition
+  |     +-- Example Problem
+  |     +-- Worked Solution
+  +-- Section: Confidence Intervals
+        +-- Concept Explanation
+        +-- Practice Question
+\end{verbatim}
+
+This representation allows chunking algorithms to operate on coherent instructional units rather than arbitrary text fragments.
+
+\subsection{Parser Fallback and Error Handling}
+Parsing academic documents can be unreliable due to formatting inconsistencies or scanned source materials. To improve robustness, the system should support fallback behavior.
+
+Possible fallback strategies include:
+
+\begin{itemize}
+\item Switching from Docling to Marker when layout detection confidence is low
+\item Re-processing the document using simplified parsing settings
+\item Flagging the document for user review if structural extraction fails
+\item Allowing manual document labeling to supplement automated parsing
+\end{itemize}
+
+Documents with low-confidence parsing may still be indexed, but their metadata should indicate reduced structural reliability so that retrieval weighting can account for potential noise.
+
+\subsection{Known Parsing Limitations}
+Even with layout-aware tools, certain document types remain difficult to process reliably.
+
+Known limitations include:
+
+\begin{itemize}
+\item Scanned handwritten notes
+\item Image-heavy slide decks with embedded text
+\item Complex mathematical derivations represented only as images
+\item Low-quality scans with inconsistent OCR results
+\end{itemize}
+
+In these cases, the system may rely more heavily on user-provided annotations or supplemental materials to compensate for incomplete structural extraction.
+
+Despite these limitations, the Document Processing Layer significantly improves the system's ability to preserve instructional structure compared to naive text extraction approaches.
+
+\section{AI and Retrieval Pipeline}
+
+\subsection{Pipeline Overview}
+ExamProfile AI uses a Retrieval-Augmented Generation (RAG) pipeline to convert raw course materials into grounded, course-specific outputs. The pipeline is designed to support three primary goals:
+\begin{itemize}
+\item Build a structured representation of course and instructor assessment tendencies
+\item Generate practice problems and simulated exams grounded in uploaded materials
+\item Convert student submissions into structured weakness signals that inform future targeted practice
+\end{itemize}
+
+Rather than relying on a single model call, the pipeline is intended to operate as a staged process in which documents are parsed, normalized, chunked, embedded, retrieved, synthesized into a Professor Profile, and then used to support multi-stage generation and grading workflows. This design improves grounding, traceability, and control over output quality.
+
+Conceptually, the pipeline can be summarized as:
+\[
+\text{Upload} \rightarrow \text{Parse} \rightarrow \text{Normalize} \rightarrow \text{Chunk} \rightarrow \text{Embed and Index} \rightarrow \text{Retrieve} \rightarrow \text{Profile / Generate / Grade} \rightarrow \text{Update Analytics}
+\]
+
+\subsection{Document Ingestion and Normalization}
+The pipeline begins when uploaded course materials are transformed into a consistent internal representation suitable for downstream retrieval and modeling. Raw academic documents may vary significantly in format, structure, and quality, especially when they contain equations, multi-column layouts, diagrams, or scanned content.
+
+The ingestion stage is responsible for:
+\begin{itemize}
+\item Converting uploaded files into structured text or Markdown-like intermediate representations
+\item Preserving useful structural markers such as section headers, problem boundaries, numbered examples, and lists
+\item Retaining document identity metadata such as source type, title, upload label, and user-provided annotations
+\item Normalizing parser output into a consistent internal format regardless of the original file type
+\end{itemize}
+
+The goal of normalization is to make downstream processing independent of document source idiosyncrasies. By the end of this stage, each uploaded material should be represented in a structured form that is suitable for chunking, indexing, and profile construction.
+
+\subsection{Chunking Strategy}
+After normalization, documents are divided into smaller semantic units called \textbf{chunks}. Chunking is necessary because generation and retrieval operate more reliably when the system can reference coherent sections of content rather than entire documents.
+
+Chunk boundaries should be chosen to preserve meaningful instructional units such as:
+\begin{itemize}
+\item A complete worked example
+\item A single homework problem
+\item A lecture subsection
+\item A definition-theorem-example group
+\item A question stem with its associated parts
+\end{itemize}
+
+Chunking should avoid splitting mathematical reasoning or question structure in unnatural ways. For example, a problem statement and its subparts should remain together when possible, and a worked solution should not be fragmented if doing so would destroy the context needed for retrieval or grading.
+
+The chunking strategy should aim to balance:
+\begin{itemize}
+\item Semantic coherence
+\item Retrieval granularity
+\item Preservation of local context
+\item Compatibility with embedding and model context constraints
+\end{itemize}
+
+\subsection{Embedding and Metadata Representation}
+Each chunk is transformed into an embedding representation so that semantically related material can be retrieved later. However, embeddings alone are not sufficient; each chunk must also carry metadata that helps the system enforce scope constraints and interpret relevance.
+
+Chunk metadata may include:
+\begin{itemize}
+\item Source document identifier
+\item Source type (e.g., slide deck, homework, prior exam, practice test)
+\item Section title or topic label
+\item User-provided scope labels
+\item Estimated question type or instructional role
+\item Relative position within the source document
+\item Parsing confidence or source quality indicators where available
+\end{itemize}
+
+This metadata supports both semantic retrieval and rule-based filtering. For example, a user constraint such as ``Only review Notes 3--8'' should not rely only on semantic similarity; it should also be enforceable through metadata-aware retrieval.
+
+The combination of embeddings and structured metadata enables the system to retrieve evidence that is both semantically relevant and operationally aligned with user scope constraints.
+
+\subsection{Retrieval Strategy}
+The Retrieval stage selects the most relevant evidence to support a downstream task such as Professor Profile construction, practice generation, exam generation, grading context, or targeted regeneration.
+
+Retrieval should combine:
+\begin{itemize}
+\item Semantic similarity over embedded chunks
+\item Metadata filtering based on user-defined scope constraints
+\item Source-aware weighting based on document reliability
+\item Context-aware ranking based on the intended downstream task
+\end{itemize}
+
+Different tasks may require different retrieval behavior. For example:
+\begin{itemize}
+\item Practice generation may retrieve broad topic-relevant instructional examples
+\item Exam generation may prioritize prior exams and assessment-like materials
+\item Grading support may retrieve conceptually adjacent examples, formulas, or worked solutions
+\item Targeted regeneration may prioritize chunks linked to previously weak concepts
+\end{itemize}
+
+Retrieval should therefore be treated as a task-conditioned operation rather than a single universal query mechanism. The system should prefer evidence that is both relevant and structurally appropriate for the requested workflow.
+
+\subsection{Professor Profile Construction}
+The Professor Profile is constructed by aggregating signals from uploaded materials and retrieved course evidence. The purpose of this stage is not to produce a rigid statistical template, but rather to estimate instructor tendencies and course assessment patterns in a flexible, evidence-weighted way.
+
+Professor Profile construction may infer:
+\begin{itemize}
+\item Recurring topics and relative topic emphasis
+\item Common question formats
+\item Repeated assessment structures
+\item Approximate difficulty tendencies
+\item Evidence about whether the course is more theoretical, computational, or mixed
+\end{itemize}
+
+Profile construction should weigh evidence sources differently. For example:
+\begin{itemize}
+\item Prior exams and official practice tests should be treated as strong assessment evidence
+\item Homework sets may indicate topic emphasis and difficulty tendencies
+\item Lecture slides may indicate conceptual scope
+\item User-provided guidance may override or clarify ambiguous evidence
+\end{itemize}
+
+Importantly, inferred distributions should be treated as \textbf{soft tendencies} rather than hard rules. A topic that appears frequently in the materials should influence generation, but it should not force mechanical proportional reproduction. The goal is realistic alignment, not deterministic copying.
+
+\subsection{Generation Pipeline}
+The Generation Pipeline uses retrieved evidence, Professor Profile context, and user-selected controls to produce either targeted practice sets or full simulated exams.
+
+Generation inputs may include:
+\begin{itemize}
+\item Retrieved chunks from course materials
+\item Professor Profile summaries
+\item User-selected format controls
+\item Scope constraints
+\item Difficulty preferences
+\item Prior weakness signals when generating targeted follow-up practice
+\end{itemize}
+
+The generation process is intended to produce outputs that are:
+\begin{itemize}
+\item Grounded in course evidence
+\item Structurally aligned with instructor tendencies
+\item Novel and non-trivially distinct from source materials by default
+\item Constrained to the requested scope and format
+\end{itemize}
+
+Generation should not be treated as a one-shot step. Instead, the pipeline should support multiple stages such as:
+\begin{itemize}
+\item Draft generation
+\item Structural review
+\item Constraint validation
+\item Refinement or revision
+\item Final formatting and answer-key generation
+\end{itemize}
+
+For multiple-choice generation, the pipeline should also aim to avoid unrealistic artifacts such as repetitive answer-position patterns or trivially guessable distractor structures.
+
+\subsection{Structured Grading Pipeline}
+When a student submits answers, the grading pipeline converts those responses into structured evaluation outputs that can support both immediate feedback and long-term analytics.
+
+The grading pipeline is intended to:
+\begin{itemize}
+\item Evaluate correctness and partial correctness
+\item Distinguish between different categories of failure
+\item Identify what portion of the reasoning appears valid
+\item Associate errors with concepts, methods, or skill categories where possible
+\item Produce feedback that is diagnostically useful rather than purely binary
+\end{itemize}
+
+Structured error categories may include:
+\begin{itemize}
+\item Wrong method selection
+\item Formula misuse
+\item Computational mistake
+\item Interpretation error
+\item Incomplete reasoning
+\end{itemize}
+
+The grading pipeline should be designed to support traceability. Wherever possible, downstream analytics should be able to reference not only the final score but also the type of mistake and the concept area implicated by that mistake.
+
+\subsection{Adaptive Regeneration Pipeline}
+The adaptive regeneration stage closes the loop between generation, submission, grading, and future practice. Rather than treating each session as isolated, the system uses accumulated weakness signals to shape what the user should practice next.
+
+Adaptive regeneration may use signals such as:
+\begin{itemize}
+\item Repeated mistakes within the same concept area
+\item Persistent difficulty with a particular question type
+\item Low performance on a specific topic cluster
+\item Weaknesses that recur across multiple practice sessions
+\end{itemize}
+
+Using these signals, the pipeline can generate follow-up material that is more focused than a general practice request. For example, repeated difficulty with hypothesis testing, Bayesian reasoning, or integration techniques should lead to practice that concentrates on those areas rather than redistributing effort evenly across the entire course.
+
+This stage transforms the system from a static practice generator into an adaptive exam-preparation engine that updates its behavior based on demonstrated performance.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.9cm and 0.6cm,
+    every node/.style={font=\small},
+    process/.style={
+        rectangle,
+        rounded corners,
+        draw=black,
+        align=center,
+        minimum width=3.2cm,
+        minimum height=0.95cm
+    },
+    datastore/.style={
+        cylinder,
+        shape border rotate=90,
+        draw=black,
+        align=center,
+        aspect=0.25,
+        minimum height=1cm,
+        minimum width=2cm
+    },
+    arrow/.style={
+        -{Latex[length=3mm]},
+        thick
+    }
+]
+
+\node[process] (upload) {Upload Course\\Materials};
+\node[process, below=of upload] (parse) {Parse and Normalize\\Documents};
+\node[process, below=of parse] (chunk) {Chunk into Semantic\\Instructional Units};
+\node[process, below=of chunk] (embed) {Generate Embeddings\\and Metadata};
+\node[datastore, right=2.2cm of embed] (vector) {Vector Store};
+\node[process, below=of embed] (retrieve) {Retrieve Relevant Evidence};
+\node[process, below left=1.1cm and 1.8cm of retrieve] (profile) {Professor Profile\\Construction};
+\node[process, below=1.8cm of retrieve] (generate) {Multi-Stage Question /\\Exam Generation};
+\node[process, below right=1.1cm and 1.8cm of retrieve] (grade) {Structured Grading\\and Error Classification};
+\node[process, below=1.4cm of generate] (analytics) {Weakness Analytics\\and Trend Updates};
+\node[process, below=of analytics] (regen) {Targeted Practice\\Regeneration};
+
+\draw[arrow] (upload) -- (parse);
+\draw[arrow] (parse) -- (chunk);
+\draw[arrow] (chunk) -- (embed);
+\draw[arrow] (embed) -- (retrieve);
+\draw[arrow] (embed) -- (vector);
+\draw[arrow] (vector) -- (retrieve);
+
+\draw[arrow] (retrieve) -- (profile);
+\draw[arrow] (retrieve) -- (generate);
+\draw[arrow] (retrieve) -- (grade);
+
+\draw[arrow] (profile) -- (generate);
+\draw[arrow] (generate) -- (analytics);
+\draw[arrow] (grade) -- (analytics);
+\draw[arrow] (analytics) -- (regen);
+\draw[arrow] (regen.west) |- (retrieve.west);
+
+\end{tikzpicture}
+\caption{Logical Retrieval-Augmented Generation pipeline for ExamProfile AI. Uploaded course materials are parsed, normalized, chunked, embedded, and indexed. Retrieved evidence supports Professor Profile construction, grounded generation, structured grading, and adaptive targeted practice.}
+\end{figure}
+
+\section{Generation Quality Control System}
+
+\subsection{Purpose}
+A central differentiator of ExamProfile AI is that generated practice problems and simulated exams are not intended to be produced through a single unchecked model call. Instead, generation is designed as a multi-stage quality-control workflow in which draft outputs are reviewed, validated, and refined before they are delivered to the user.
+
+This design reduces common failure modes of naive LLM-based generation, including:
+\begin{itemize}
+\item shallow paraphrasing of source materials
+\item unrealistic exam structure
+\item mismatched difficulty
+\item poor multiple-choice distractor quality
+\item repetitive answer-position patterns
+\item weak alignment with inferred professor tendencies
+\end{itemize}
+
+\subsection{Multi-Stage Generation Philosophy}
+The system treats generation as a pipeline of logical review stages rather than a single irreversible action. Each stage is responsible for checking a different aspect of output quality.
+
+Conceptually, the workflow can be summarized as:
+\[
+\text{Draft Generation} \rightarrow \text{Structure Validation} \rightarrow \text{Novelty Checking} \rightarrow \text{Difficulty Calibration} \rightarrow \text{Answer Distribution Correction} \rightarrow \text{Final Assembly}
+\]
+
+This architecture may be implemented through multiple dedicated agents, multiple internal validation passes, or staged orchestration logic within a single backend service, depending on deployment maturity.
+
+\subsection{Draft Generation Stage}
+The Draft Generation stage produces an initial set of candidate questions using retrieved evidence, Professor Profile context, and user-selected generation settings.
+
+The draft stage is responsible for:
+\begin{itemize}
+\item generating candidate questions
+\item generating preliminary answer keys
+\item following requested format settings
+\item remaining within scope constraints
+\end{itemize}
+
+At this stage, the output is considered provisional rather than final.
+
+\subsection{Structure Validation Stage}
+The Structure Validation stage checks whether generated output conforms to the requested exam or practice format and whether it appears structurally aligned with inferred course assessment patterns.
+
+Validation checks may include:
+\begin{itemize}
+\item requested number of questions
+\item requested question-type mix
+\item section organization consistency
+\item formatting completeness
+\item alignment with inferred exam structure tendencies
+\end{itemize}
+
+Outputs that fail structural validation may be revised or regenerated before reaching later stages.
+
+\subsection{Novelty Checking Stage}
+The Novelty Checking stage reduces the risk of producing questions that are overly similar to source materials. The system should aim to generate questions that are aligned in concept and style without being trivial rewordings or minor numeric edits of existing problems.
+
+Novelty checks may include:
+\begin{itemize}
+\item similarity comparison against retrieved source chunks
+\item detection of near-duplicate wording patterns
+\item detection of trivial numeric substitutions
+\item comparison against previously generated questions within the same workspace
+\end{itemize}
+
+The purpose of this stage is not to force complete novelty at all costs, but to avoid outputs that feel obviously copied or mechanically altered.
+
+\subsection{Difficulty Calibration Stage}
+The Difficulty Calibration stage checks whether generated questions approximately match the intended difficulty profile. Difficulty mismatches can make practice unrealistically easy or unnecessarily hard, reducing the value of the simulated exam experience.
+
+Calibration signals may include:
+\begin{itemize}
+\item inferred course difficulty tendencies
+\item requested difficulty range
+\item structural complexity of the generated question
+\item number of reasoning steps required
+\item expected computational burden
+\end{itemize}
+
+Questions that appear significantly miscalibrated may be revised, replaced, or re-ranked before final assembly.
+
+\subsection{Answer Distribution Correction Stage}
+For multiple-choice generation, the system should avoid common LLM artifacts such as predictable answer-position bias or weak distractor construction.
+
+This stage may check:
+\begin{itemize}
+\item distribution of correct answer positions
+\item clarity and plausibility of distractors
+\item absence of accidental cueing patterns
+\item consistency between question stem and answer options
+\end{itemize}
+
+This stage helps ensure that generated MCQs feel more realistic and less artificially patterned.
+
+\subsection{Final Assembly Stage}
+The Final Assembly stage prepares validated questions for user delivery. At this point, the system compiles questions into either a targeted practice set or a full simulated exam and attaches associated answer keys, explanations, and formatting metadata.
+
+This stage may include:
+\begin{itemize}
+\item ordering questions
+\item grouping questions into sections
+\item attaching answer keys
+\item attaching explanations
+\item rendering the final output artifact
+\end{itemize}
+
+Only outputs that pass the prior quality-control stages should be promoted to final delivery status.
+
+\subsection{Role in System Differentiation}
+The Generation Quality Control System is a major differentiator because it moves the platform beyond naive retrieval-plus-generation workflows. Instead of treating the language model as an infallible generator, the system treats generation as a process that benefits from layered validation and refinement.
+
+This design supports:
+\begin{itemize}
+\item stronger alignment with instructor tendencies
+\item reduced paraphrasing risk
+\item more realistic simulated exams
+\item more reliable multiple-choice construction
+\item improved consistency across repeated generation runs
+\end{itemize}
+
+\section{Generation Quality Control Diagram}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.9cm and 0.6cm,
+    every node/.style={font=\small},
+    process/.style={
+        rectangle,
+        rounded corners,
+        draw=black,
+        align=center,
+        minimum width=3.2cm,
+        minimum height=0.95cm
+    },
+    arrow/.style={
+        -{Latex[length=3mm]},
+        thick
+    }
+]
+
+\node[process] (draft) {Draft\\Generation};
+\node[process, below=of draft] (structure) {Structure\\Validation};
+\node[process, below=of structure] (novelty) {Novelty\\Checking};
+\node[process, below=of novelty] (difficulty) {Difficulty\\Calibration};
+\node[process, below=of difficulty] (answerdist) {Answer Distribution\\Correction};
+\node[process, below=of answerdist] (assembly) {Final\\Assembly};
+
+\draw[arrow] (draft) -- (structure);
+\draw[arrow] (structure) -- (novelty);
+\draw[arrow] (novelty) -- (difficulty);
+\draw[arrow] (difficulty) -- (answerdist);
+\draw[arrow] (answerdist) -- (assembly);
+
+\end{tikzpicture}
+\caption{Logical quality-control workflow for generated practice problems and simulated exams. Candidate questions pass through multiple validation stages before final assembly and delivery.}
+\end{figure}
+
+\section{Multi-Agent Generation Architecture}
+
+\subsection{Purpose}
+While the Generation Service is responsible for producing practice problems and simulated exams, high-quality exam generation requires more than a single model invocation. Large language models are powerful but can exhibit several failure modes when used in isolation, including:
+
+\begin{itemize}
+\item shallow paraphrasing of source materials
+\item structural inconsistencies in generated exams
+\item unrealistic difficulty levels
+\item repetitive answer distributions in multiple-choice questions
+\item weak distractor design
+\end{itemize}
+
+To mitigate these issues, ExamProfile AI implements a \textbf{multi-agent generation architecture}. Rather than relying on a single generation step, the system orchestrates several specialized agents that evaluate and refine generated content before final delivery.
+
+Each agent focuses on a specific dimension of generation quality, allowing the system to improve reliability, realism, and alignment with inferred professor tendencies.
+
+\subsection{Agent Pipeline Overview}
+The multi-agent architecture operates as a staged evaluation pipeline:
+
+\[
+\text{Draft Generator Agent}
+\rightarrow
+\text{Structure Validator Agent}
+\rightarrow
+\text{Novelty Checker Agent}
+\rightarrow
+\text{Difficulty Calibration Agent}
+\rightarrow
+\text{Answer Distribution Agent}
+\rightarrow
+\text{Final Formatter Agent}
+\]
+
+Each agent receives the output of the previous stage, performs validation or refinement, and passes the improved result to the next stage.
+
+\subsection{Draft Generator Agent}
+The Draft Generator Agent is responsible for producing the initial candidate questions or exam structure. It receives the following inputs:
+
+\begin{itemize}
+\item Retrieved course evidence
+\item Professor Profile context
+\item User generation configuration
+\item Scope constraints
+\item Target difficulty signals
+\end{itemize}
+
+The Draft Generator produces:
+
+\begin{itemize}
+\item candidate questions
+\item provisional answer keys
+\item optional explanations
+\item structural exam layout
+\end{itemize}
+
+Outputs from this stage are treated as preliminary drafts rather than final results.
+
+\subsection{Structure Validator Agent}
+The Structure Validator Agent checks whether the generated output conforms to requested exam specifications and inferred instructor assessment patterns.
+
+Typical validation checks include:
+
+\begin{itemize}
+\item number of questions
+\item question-type distribution
+\item section organization
+\item formatting completeness
+\item alignment with inferred exam structure patterns
+\end{itemize}
+
+If the structure deviates significantly from expectations, the system may:
+
+\begin{itemize}
+\item request revision from the Draft Generator
+\item adjust exam composition
+\item regenerate specific sections
+\end{itemize}
+
+\subsection{Novelty Checker Agent}
+The Novelty Checker Agent evaluates whether generated questions are sufficiently distinct from the source materials used during retrieval.
+
+This stage attempts to prevent:
+
+\begin{itemize}
+\item near-duplicate questions
+\item trivial numeric substitutions
+\item direct paraphrasing of existing problems
+\end{itemize}
+
+Possible novelty detection mechanisms include:
+
+\begin{itemize}
+\item semantic similarity comparisons against retrieved chunks
+\item comparison against previously generated questions
+\item detection of overlapping phrasing patterns
+\end{itemize}
+
+Questions flagged as overly similar may be revised or regenerated.
+
+\subsection{Difficulty Calibration Agent}
+The Difficulty Calibration Agent estimates whether generated questions match the intended difficulty level. Difficulty estimation may consider:
+
+\begin{itemize}
+\item number of reasoning steps required
+\item mathematical or computational complexity
+\item alignment with inferred exam difficulty tendencies
+\item requested difficulty range
+\end{itemize}
+
+If questions appear too trivial or too difficult relative to the intended level, the system may:
+
+\begin{itemize}
+\item revise the problem statement
+\item replace the question with a new candidate
+\item adjust parameters for the Draft Generator
+\end{itemize}
+
+\subsection{Answer Distribution Agent}
+Multiple-choice questions generated by LLMs often exhibit biased answer-position patterns, such as a disproportionate number of correct answers appearing in the same option index.
+
+The Answer Distribution Agent performs statistical checks across generated questions to ensure:
+
+\begin{itemize}
+\item balanced correct answer distribution
+\item plausible distractor options
+\item absence of accidental cueing patterns
+\item logical consistency between question stem and answer choices
+\end{itemize}
+
+Where imbalances are detected, the system may shuffle options or regenerate distractors.
+
+\subsection{Final Formatter Agent}
+The Final Formatter Agent prepares validated content for delivery to the user.
+
+Responsibilities include:
+
+\begin{itemize}
+\item ordering questions
+\item grouping exam sections
+\item attaching answer keys
+\item attaching explanations
+\item formatting output artifacts
+\item preparing export-ready formats
+\end{itemize}
+
+The final result may be delivered as:
+
+\begin{itemize}
+\item an interactive exam interface
+\item a structured practice set
+\item a downloadable PDF artifact
+\end{itemize}
+
+\subsection{Advantages of the Multi-Agent Approach}
+This architecture provides several advantages over single-stage generation:
+
+\begin{itemize}
+\item improved structural reliability
+\item reduced paraphrasing risk
+\item better difficulty calibration
+\item more realistic exam composition
+\item stronger alignment with instructor assessment tendencies
+\end{itemize}
+
+By separating generation responsibilities across specialized agents, the system gains greater control over output quality and becomes easier to refine as new validation techniques are developed.
+
+\section{Weakness Analytics and Dashboard}
+
+\subsection{Purpose}
+The Weakness Analytics system converts individual grading outcomes into longitudinal learning insights. Rather than treating each problem set or simulated exam as an isolated event, the system aggregates grading signals over time to identify recurring patterns in student performance.
+
+The goal of this analytics layer is to help students understand:
+\begin{itemize}
+\item which concepts they consistently struggle with
+\item what types of errors they repeatedly make
+\item whether their performance is improving over time
+\item where targeted practice will have the greatest impact
+\end{itemize}
+
+The analytics dashboard serves as the primary interface through which these insights are presented to the user.
+
+\subsection{Concept Mastery Modeling}
+Concept mastery is estimated by aggregating grading outcomes across problems associated with the same topic or concept cluster. Each evaluated question contributes evidence toward the user's estimated mastery of the underlying concept.
+
+Signals used in mastery estimation may include:
+
+\begin{itemize}
+\item correctness of submitted answers
+\item partial correctness or partially valid reasoning
+\item frequency of mistakes associated with the concept
+\item recency of practice attempts
+\end{itemize}
+
+Concept mastery scores may be represented on a continuous scale (e.g., 0--1) or as categorical levels such as:
+
+\begin{itemize}
+\item strong mastery
+\item moderate understanding
+\item developing understanding
+\item significant weakness
+\end{itemize}
+
+These mastery estimates update dynamically as new practice sessions are completed.
+
+\subsection{Error Classification Aggregation}
+Individual grading events produce structured error classifications. Over time, these classifications are aggregated to identify recurring error patterns.
+
+Typical error categories include:
+
+\begin{itemize}
+\item Wrong method selection
+\item Formula misuse
+\item Computational mistake
+\item Interpretation or reasoning error
+\item Incomplete reasoning
+\end{itemize}
+
+The system tracks the frequency of each error type and associates it with the relevant concept or topic area. This allows the analytics engine to determine whether a weakness is due to misunderstanding a concept, choosing the wrong approach, or making execution mistakes during calculations.
+
+\subsection{Performance Trend Tracking}
+The analytics system tracks performance trends across multiple practice sessions. This longitudinal tracking helps users determine whether their preparation is improving over time.
+
+Tracked metrics may include:
+
+\begin{itemize}
+\item average accuracy across recent practice sessions
+\item improvement or decline in concept mastery scores
+\item changes in error distribution over time
+\item performance differences between practice sets and simulated exams
+\end{itemize}
+
+Trend visualization helps users determine whether their study strategy is producing measurable improvement.
+
+\subsection{Dashboard Visualizations}
+The user-facing dashboard presents analytics through a set of visual summaries designed to make performance patterns easy to interpret.
+
+Example dashboard components include:
+
+\begin{itemize}
+\item \textbf{Concept mastery heatmap} showing relative strength across topics
+\item \textbf{Error-type distribution chart} showing the most common mistake categories
+\item \textbf{Performance timeline} showing accuracy trends across practice sessions
+\item \textbf{Topic performance chart} comparing success rates across major course topics
+\end{itemize}
+
+These visualizations are designed to make it easy for students to quickly identify areas that require additional focus.
+
+\subsection{Targeted Practice Recommendations}
+Analytics outputs feed directly into the adaptive regeneration pipeline. Based on observed weaknesses, the system generates targeted practice recommendations that prioritize concepts and question types where improvement is most needed.
+
+Recommendation signals may include:
+
+\begin{itemize}
+\item concepts with consistently low mastery scores
+\item topics associated with repeated error patterns
+\item question types where the student underperforms
+\item concepts that have not been practiced recently
+\end{itemize}
+
+The goal of these recommendations is to focus practice effort where it will produce the largest improvement in exam readiness.
+
+\subsection{Role in the Adaptive Learning Loop}
+The Weakness Analytics system is a critical component of the system's adaptive preparation loop:
+
+\[
+\text{Practice} \rightarrow \text{Submission} \rightarrow \text{Grading} \rightarrow \text{Analytics} \rightarrow \text{Targeted Regeneration}
+\]
+
+This loop allows the system to move beyond static problem generation and instead function as a continuously improving exam-preparation platform that adapts to each student's demonstrated performance.
+
+\section{Core Data Model}
+
+\subsection{Purpose}
+The Core Data Model defines the primary persistent entities required to support document ingestion, Professor Profile construction, generation workflows, grading, analytics, and adaptive regeneration. While the system includes a vector storage layer and file storage layer, the relational database serves as the system of record for structured application data.
+
+The database schema is intended to support:
+\begin{itemize}
+\item user-level study workspaces
+\item document upload and processing state
+\item parsed and indexed instructional content
+\item Professor Profile versioning
+\item generated practice sets and exams
+\item student submissions and grading outputs
+\item longitudinal analytics and targeted regeneration history
+\end{itemize}
+
+\subsection{Schema Organization}
+The relational schema is organized into the following major entity groups:
+\begin{itemize}
+\item User and workspace entities
+\item Document and parsing entities
+\item Retrieval and chunk entities
+\item Professor Profile entities
+\item Generation and exam entities
+\item Submission and grading entities
+\item Analytics and regeneration entities
+\end{itemize}
+
+\subsection{User and Workspace Entities}
+
+\subsubsection{Users}
+The \texttt{users} table stores the primary user accounts for the platform.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{email} --- unique account email
+\item \texttt{display\_name} --- optional user-facing name
+\item \texttt{created\_at} --- account creation timestamp
+\item \texttt{updated\_at} --- last account update timestamp
+\end{itemize}
+
+\subsubsection{Workspaces}
+The \texttt{workspaces} table stores logical study contexts associated with a user. A workspace may represent a course, a midterm preparation environment, or another organized set of materials and practice sessions.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{user\_id} --- foreign key to \texttt{users}
+\item \texttt{title} --- workspace title
+\item \texttt{course\_code} --- optional course identifier
+\item \texttt{description} --- optional summary
+\item \texttt{created\_at} --- creation timestamp
+\item \texttt{updated\_at} --- last update timestamp
+\end{itemize}
+
+\subsection{Document and Parsing Entities}
+
+\subsubsection{Documents}
+The \texttt{documents} table stores uploaded source materials associated with a workspace.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{workspace\_id} --- foreign key to \texttt{workspaces}
+\item \texttt{source\_type} --- e.g., lecture slides, homework, prior exam, practice test
+\item \texttt{file\_name} --- original file name
+\item \texttt{upload\_label} --- user-provided label
+\item \texttt{file\_path} --- object storage reference
+\item \texttt{processing\_status} --- uploaded, parsing, indexed, ready, failed
+\item \texttt{created\_at} --- upload timestamp
+\item \texttt{updated\_at} --- status update timestamp
+\end{itemize}
+
+\subsubsection{Document Processing Jobs}
+The \texttt{document\_processing\_jobs} table tracks parsing and indexing workflows for uploaded materials.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{document\_id} --- foreign key to \texttt{documents}
+\item \texttt{parser\_used} --- Docling, Marker, or other parser identifier
+\item \texttt{status} --- queued, running, completed, failed
+\item \texttt{confidence\_score} --- optional parsing confidence indicator
+\item \texttt{error\_message} --- nullable failure description
+\item \texttt{created\_at} --- job creation timestamp
+\item \texttt{updated\_at} --- last job update timestamp
+\end{itemize}
+
+\subsubsection{Parsed Documents}
+The \texttt{parsed\_documents} table stores normalized structured representations derived from uploaded documents.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{document\_id} --- foreign key to \texttt{documents}
+\item \texttt{normalized\_content} --- structured Markdown or normalized text
+\item \texttt{structural\_metadata} --- serialized section and layout metadata
+\item \texttt{created\_at} --- creation timestamp
+\end{itemize}
+
+\subsection{Retrieval and Chunk Entities}
+
+\subsubsection{Chunks}
+The \texttt{chunks} table stores semantic instructional units extracted from parsed documents.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{parsed\_document\_id} --- foreign key to \texttt{parsed\_documents}
+\item \texttt{chunk\_text} --- text content of the chunk
+\item \texttt{chunk\_type} --- e.g., example, definition, problem, solution, theorem
+\item \texttt{topic\_label} --- optional inferred topic tag
+\item \texttt{position\_index} --- relative position within document
+\item \texttt{metadata} --- serialized retrieval metadata
+\item \texttt{created\_at} --- creation timestamp
+\end{itemize}
+
+\subsubsection{Chunk Embeddings}
+The \texttt{chunk\_embeddings} table stores references to vectorized chunk representations.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{chunk\_id} --- foreign key to \texttt{chunks}
+\item \texttt{vector\_store\_id} --- external vector store reference
+\item \texttt{embedding\_model} --- embedding model identifier
+\item \texttt{created\_at} --- creation timestamp
+\end{itemize}
+
+\subsection{Professor Profile Entities}
+
+\subsubsection{Professor Profiles}
+The \texttt{professor\_profiles} table stores the current active profile associated with a workspace.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{workspace\_id} --- foreign key to \texttt{workspaces}
+\item \texttt{active\_version\_id} --- foreign key to profile version table
+\item \texttt{created\_at} --- creation timestamp
+\item \texttt{updated\_at} --- last update timestamp
+\end{itemize}
+
+\subsubsection{Professor Profile Versions}
+The \texttt{professor\_profile\_versions} table stores versioned snapshots of inferred assessment tendencies.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{professor\_profile\_id} --- foreign key to \texttt{professor\_profiles}
+\item \texttt{topic\_distribution} --- serialized soft topic weighting
+\item \texttt{question\_type\_distribution} --- serialized question-type tendencies
+\item \texttt{difficulty\_profile} --- serialized difficulty tendencies
+\item \texttt{exam\_structure\_profile} --- serialized inferred exam structure
+\item \texttt{evidence\_summary} --- summary of evidence sources used
+\item \texttt{created\_at} --- version creation timestamp
+\end{itemize}
+
+\subsection{Generation and Exam Entities}
+
+\subsubsection{Generation Requests}
+The \texttt{generation\_requests} table stores user-issued requests for practice sets or simulated exams.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{workspace\_id} --- foreign key to \texttt{workspaces}
+\item \texttt{request\_type} --- practice set, simulated exam, targeted regeneration
+\item \texttt{scope\_constraints} --- serialized scope filter settings
+\item \texttt{generation\_config} --- serialized generation parameters
+\item \texttt{status} --- queued, running, completed, failed
+\item \texttt{created\_at} --- request timestamp
+\end{itemize}
+
+\subsubsection{Generated Exams}
+The \texttt{generated\_exams} table stores generated practice sets and simulated exams.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{generation\_request\_id} --- foreign key to \texttt{generation\_requests}
+\item \texttt{workspace\_id} --- foreign key to \texttt{workspaces}
+\item \texttt{title} --- generated exam or practice set title
+\item \texttt{exam\_mode} --- practice, exam, targeted practice
+\item \texttt{format\_type} --- MCQ, FRQ, mixed
+\item \texttt{rendered\_artifact\_path} --- optional export path
+\item \texttt{created\_at} --- creation timestamp
+\end{itemize}
+
+\subsubsection{Generated Questions}
+The \texttt{generated\_questions} table stores individual questions belonging to a generated exam or practice set.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{generated\_exam\_id} --- foreign key to \texttt{generated\_exams}
+\item \texttt{question\_order} --- relative order within exam
+\item \texttt{question\_text} --- rendered question text
+\item \texttt{question\_type} --- MCQ, FRQ, calculation, proof, etc.
+\item \texttt{difficulty\_label} --- estimated difficulty
+\item \texttt{topic\_label} --- associated topic
+\item \texttt{answer\_key} --- expected answer or grading reference
+\item \texttt{explanation} --- optional explanation text
+\item \texttt{created\_at} --- creation timestamp
+\end{itemize}
+
+\subsection{Submission and Grading Entities}
+
+\subsubsection{Submissions}
+The \texttt{submissions} table stores a user's submitted answers for a generated exam or practice set.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{generated\_exam\_id} --- foreign key to \texttt{generated\_exams}
+\item \texttt{user\_id} --- foreign key to \texttt{users}
+\item \texttt{submitted\_at} --- submission timestamp
+\item \texttt{raw\_response\_payload} --- serialized answer payload
+\item \texttt{status} --- submitted, grading, graded
+\end{itemize}
+
+\subsubsection{Submission Answers}
+The \texttt{submission\_answers} table stores question-level submitted responses.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{submission\_id} --- foreign key to \texttt{submissions}
+\item \texttt{generated\_question\_id} --- foreign key to \texttt{generated\_questions}
+\item \texttt{answer\_content} --- submitted answer text or structured payload
+\item \texttt{created\_at} --- answer creation timestamp
+\end{itemize}
+
+\subsubsection{Grading Results}
+The \texttt{grading\_results} table stores structured evaluation outputs for submitted answers.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{submission\_answer\_id} --- foreign key to \texttt{submission\_answers}
+\item \texttt{correctness\_label} --- correct, partial, incorrect
+\item \texttt{score\_value} --- numeric or fractional score
+\item \texttt{diagnostic\_explanation} --- structured explanation
+\item \texttt{concept\_label} --- mapped concept or topic
+\item \texttt{created\_at} --- grading timestamp
+\end{itemize}
+
+\subsubsection{Error Classifications}
+The \texttt{error\_classifications} table stores normalized error-type labels associated with grading results.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{grading\_result\_id} --- foreign key to \texttt{grading\_results}
+\item \texttt{error\_type} --- wrong method, formula misuse, computation error, interpretation error, incomplete reasoning
+\item \texttt{severity} --- optional severity level
+\item \texttt{created\_at} --- creation timestamp
+\end{itemize}
+
+\subsection{Analytics and Regeneration Entities}
+
+\subsubsection{Analytics Snapshots}
+The \texttt{analytics\_snapshots} table stores periodic summaries of a user's mastery and error-state within a workspace.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{workspace\_id} --- foreign key to \texttt{workspaces}
+\item \texttt{user\_id} --- foreign key to \texttt{users}
+\item \texttt{concept\_mastery\_state} --- serialized mastery summary
+\item \texttt{error\_distribution} --- serialized error aggregation summary
+\item \texttt{performance\_trend\_summary} --- serialized trend metrics
+\item \texttt{created\_at} --- snapshot timestamp
+\end{itemize}
+
+\subsubsection{Regeneration Requests}
+The \texttt{regeneration\_requests} table stores targeted follow-up practice generation requests triggered by weakness analytics.
+
+Suggested fields include:
+\begin{itemize}
+\item \texttt{id} --- primary key
+\item \texttt{workspace\_id} --- foreign key to \texttt{workspaces}
+\item \texttt{user\_id} --- foreign key to \texttt{users}
+\item \texttt{source\_analytics\_snapshot\_id} --- foreign key to \texttt{analytics\_snapshots}
+\item \texttt{target\_concepts} --- serialized concept targets
+\item \texttt{request\_status} --- queued, running, completed, failed
+\item \texttt{created\_at} --- request timestamp
+\end{itemize}
+
+\subsection{Design Principles}
+The data model is designed according to the following principles:
+
+\begin{itemize}
+\item \textbf{Separation of source and derived data}: uploaded documents, parsed outputs, generated artifacts, and analytics summaries are stored separately.
+\item \textbf{Versioning of inferred state}: Professor Profiles should support versioned updates as more evidence is added.
+\item \textbf{Traceability}: generated content, grading outputs, and analytics states should be traceable back to the workspace, source material, and submission context that produced them.
+\item \textbf{Extensibility}: the schema should support future additions such as richer grading modes, multi-model generation metadata, and more advanced analytics without requiring a full redesign.
+\end{itemize}
+
+\section{Technology Stack}
+
+\subsection{Frontend}
+\begin{itemize}
+\item React
+\item TypeScript
+\item Tailwind CSS
+\item Shadcn/ui
+\item Recharts for analytics dashboards
+\end{itemize}
+
+\subsection{Backend}
+\begin{itemize}
+\item Python
+\item FastAPI
+\end{itemize}
+
+\subsection{Document Parsing}
+\begin{itemize}
+\item Docling
+\item Marker
+\item Pandoc
+\end{itemize}
+
+\subsection{AI and Retrieval}
+\begin{itemize}
+\item Gemini 1.5 Flash API
+\item LlamaIndex for orchestration
+\item Retrieval-Augmented Generation (RAG)
+\end{itemize}
+
+\subsection{Vector Database}
+\begin{itemize}
+\item ChromaDB (local development)
+\item Optional Pinecone for managed cloud deployment
+\end{itemize}
+
+\subsection{Primary Database}
+\begin{itemize}
+\item Supabase (PostgreSQL + pgvector)
+\end{itemize}
+
+\subsection{Deployment}
+\begin{itemize}
+\item Frontend: Vercel
+\item Backend: Render or Railway
+\item Database: Supabase
+\end{itemize}
+
+\section{Risks and Constraints}
+
+\begin{itemize}
+\item Parsing quality of complex PDFs
+\item Reliability of FRQ grading
+\item Accurate mapping of topic scope constraints
+\item Preventing scope creep beyond MVP
+\end{itemize}
+
+\end{document}

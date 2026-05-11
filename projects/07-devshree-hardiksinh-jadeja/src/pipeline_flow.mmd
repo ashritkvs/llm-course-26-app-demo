@@ -1,0 +1,53 @@
+graph TD
+    %% Input Layer
+    subgraph INPUTS ["1. Multi-Modal Data Ingestion"]
+        TEXT(["Clinical Narrative (NLP) <br> Unstructured EHR Text"])
+        VCF(["Genomic Variants <br> Patient VCF Data"])
+    end
+
+    %% Extraction & Processing Layer
+    subgraph PROCESSING ["2. Independent Extraction & Reasoning Layers"]
+        
+        %% NLP + Negative Phenotypes
+        TEXT -->|"BioBERT Transformer NER"| HPO_EXT["Standardized HPO Code Mapping"]
+        HPO_EXT -->|"Sentiment & Context Analysis"| SPLIT{"Symptom Presence Router"}
+        
+        SPLIT -->|"Confirmed Present"| POS_HPO["Positive Phenotype Graph <br> + Severity / Timestamp"]
+        SPLIT -->|"Explicitly Denied in Text <br> e.g. 'No seizures'"| NEG_HPO["Negative Phenotype Graph <br> (Exclusion Criteria)"]
+
+        %% Reasoning Engines
+        POS_HPO -->|"Neighborhood Propagation"| GNN["GNN Reasoner <br> (Graph Convolution)"]
+        VCF -->|"Molecular Risk Scoring"| VAR["Variant Predictor <br> (Pathogenicity ML)"]
+        POS_HPO -->|"Semantic Similarity"| RAG["RAG Literature Search <br> (FAISS Context Retrieval)"]
+
+    end
+
+    %% Fusion Engine
+    subgraph FUSION ["3. DiagRAG: Bayesian Synthesis & Graph Laplacian"]
+        
+        GNN -->|"P(Structure | Disease)"| BAYES{"Bayesian Fusion Engine"}
+        RAG -->|"P(Evidence | Disease)"| BAYES
+        VAR -->|"P(Molecular | Disease)"| BAYES
+        
+        %% Negative Phenotype Penalty
+        NEG_HPO -->|"Bayesian Exclusion Penalty"| BAYES
+
+    end
+
+    %% Final Output
+    subgraph OUTPUT ["4. Output"]
+        BAYES --> DIAG{{"Final Ranked Differential Diagnosis <br> + Explainable Evidence Rationale"}}
+    end
+
+    %% Styling
+    classDef input fill:#2d3f4e,stroke:#7aa2f7,color:#fff;
+    classDef process fill:#3d2f4a,stroke:#bb9af7,color:#fff;
+    classDef nlp fill:#3d4a2f,stroke:#26e07f,color:#fff;
+    classDef exclude fill:#4f2f35,stroke:#f7768e,color:#fff;
+    classDef fusion fill:#16161e,stroke:#ff9e64,color:#fff;
+    
+    class TEXT,VCF input;
+    class GNN,VAR,RAG process;
+    class HPO_EXT,SPLIT,POS_HPO nlp;
+    class NEG_HPO exclude;
+    class BAYES,DIAG fusion;

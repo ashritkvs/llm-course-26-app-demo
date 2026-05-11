@@ -1,0 +1,356 @@
+"""
+Prediction endpoints for heart disease risk assessment.
+"""
+
+import asyncio
+import json
+import time
+import uuid
+from typing import AsyncGenerator, List
+from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
+from fastapi.responses import StreamingResponse
+from datetime import datetime
+
+from api.models import (
+    PredictionRequest, PredictionResponse, BatchPredictionRequest,
+    BatchPredictionResponse, PatientDataRequest, PredictionOptions
+)
+from src.prediction_service import HeartDiseasePredictionService
+from api.middleware.validation import validate_patient_data_ranges, sanitize_input_data
+from config.logging_config import get_logger
+from config.settings import settings
+from utils.metrics import PREDICTION_RISK_LEVEL_COUNTER
+
+logger = get_logger(__name__)
+
+router = APIRouter(prefix="/predict", tags=["prediction"])
+
+
+def get_prediction_service() -> HeartDiseasePredictionService:
+    """Dependency to get prediction service instance."""
+    try:
+        return HeartDiseasePredictionService()
+    except Exception as e:
+        logger.error(f"Failed to initialize prediction service: {str(e)}")
+        raise HTTPException(
+            status_code=503,
+            detail="Prediction service unavailable. Please try again later."
+        )
+
+
+@router.post("/", response_model=PredictionResponse)
+async def predict_heart_disease_risk(
+    request: PredictionRequest,
+    service: HeartDiseasePredictionService = Depends(get_prediction_service)
+):
+    """
+    Predict heart disease risk for a single patient.
+
+    Args:
+        request: Patient data and prediction options
+
+    Returns:
+        PredictionResponse: Complete prediction result with explanations
+    """
+    logger.info("Prediction request received")
+
+    try:
+        # Extract patient data as dictionary
+        patient_data = request.patient_data.dict()
+
+        # Validate and sanitize input
+        validate_patient_data_ranges(patient_data)
+        patient_data = sanitize_input_data(patient_data)
+
+        # Make prediction with options — run in thread so the LLM call (30-60 s for
+        # local Ollama/Gemma2) doesn't block the FastAPI event loop.
+        result = await asyncio.to_thread(
+            service.predict,
+            patient_data,
+            request.options.include_explanation,
+            request.options.include_llm_explanation,
+        )
+
+        logger.info(f"Prediction completed: {result['prediction_id']}")
+
+        # Track risk level distribution in Prometheus
+        if result.get("success") and result.get("risk_level"):
+            PREDICTION_RISK_LEVEL_COUNTER.labels(risk_level=result["risk_level"]).inc()
+
+        # Convert to response model
+        return PredictionResponse(**result)
+
+    except ValueError as e:
+        logger.warning(f"Validation error: {str(e)}")
+        raise HTTPException(status_code=422, detail=str(e))
+
+    except Exception as e:
+        logger.error(f"Prediction failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail="Prediction failed. Please try again later."
+        )
+
+
+@router.post("/simple", response_model=PredictionResponse)
+async def predict_simple(
+    patient_data: PatientDataRequest,
+    include_explanation: bool = True,
+    include_llm_explanation: bool = True,
+    service: HeartDiseasePredictionService = Depends(get_prediction_service)
+):
+    """
+    Simple prediction endpoint with patient data directly in request body.
+
+    Args:
+        patient_data: Patient health indicators
+        include_explanation: Whether to include SHAP explanation
+        include_llm_explanation: Whether to include LLM explanation
+
+    Returns:
+        PredictionResponse: Complete prediction result
+    """
+    # Create request object
+    request = PredictionRequest(
+        patient_data=patient_data,
+        options=PredictionOptions(
+            include_explanation=include_explanation,
+            include_llm_explanation=include_llm_explanation
+        )
+    )
+
+    # Use the main prediction endpoint
+    return await predict_heart_disease_risk(request, service)
+
+
+@router.post("/batch", response_model=BatchPredictionResponse)
+async def predict_batch(
+    request: BatchPredictionRequest,
+    background_tasks: BackgroundTasks,
+    service: HeartDiseasePredictionService = Depends(get_prediction_service)
+):
+    """
+    Batch prediction for multiple patients.
+
+    Args:
+        request: Batch of patient data
+        background_tasks: FastAPI background tasks
+
+    Returns:
+        BatchPredictionResponse: Results for all patients
+    """
+    batch_id = str(uuid.uuid4())
+    start_time = time.time()
+
+    logger.info(f"Batch prediction request {batch_id} with {len(request.patients)} patients")
+
+    # Limit batch size
+    max_batch_size = 100
+    if len(request.patients) > max_batch_size:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Batch size {len(request.patients)} exceeds maximum {max_batch_size}"
+        )
+
+    predictions = []
+    successful_count = 0
+    failed_count = 0
+
+    for i, patient_data in enumerate(request.patients):
+        try:
+            # Convert patient data to dict
+            patient_dict = patient_data.dict()
+
+            # Validate and sanitize
+            validate_patient_data_ranges(patient_dict)
+            patient_dict = sanitize_input_data(patient_dict)
+
+            # Make prediction
+            result = service.predict(
+                patient_dict,
+                include_explanation=request.options.include_explanation,
+                include_llm_explanation=request.options.include_llm_explanation
+            )
+
+            predictions.append(PredictionResponse(**result))
+            successful_count += 1
+
+        except Exception as e:
+            logger.error(f"Failed to process patient {i} in batch {batch_id}: {str(e)}")
+
+            # Create error response for this patient
+            error_result = {
+                'prediction_id': str(uuid.uuid4()),
+                'timestamp': datetime.now().isoformat(),
+                'success': False,
+                'error': str(e),
+                'medical_disclaimer': settings.MEDICAL_DISCLAIMER
+            }
+
+            predictions.append(PredictionResponse(**error_result))
+            failed_count += 1
+
+    processing_time = time.time() - start_time
+
+    batch_response = BatchPredictionResponse(
+        batch_id=batch_id,
+        timestamp=datetime.now().isoformat(),
+        total_predictions=len(request.patients),
+        successful_predictions=successful_count,
+        failed_predictions=failed_count,
+        predictions=predictions,
+        processing_time_seconds=processing_time
+    )
+
+    logger.info(f"Batch prediction {batch_id} completed: "
+               f"{successful_count} successful, {failed_count} failed, "
+               f"{processing_time:.2f}s")
+
+    return batch_response
+
+
+@router.post("/stream")
+async def predict_stream(
+    request: PredictionRequest,
+    service: HeartDiseasePredictionService = Depends(get_prediction_service)
+):
+    """
+    Streaming prediction endpoint using Server-Sent Events (SSE).
+
+    Emits three event types:
+      - {"type": "prediction", "data": {...}}  — risk score + SHAP (immediate)
+      - {"type": "text", "chunk": "..."}       — LLM explanation tokens
+      - {"type": "done"}                       — stream complete
+      - {"type": "error", "message": "..."}    — on failure
+    """
+    patient_data = request.patient_data.dict()
+
+    try:
+        from api.middleware.validation import validate_patient_data_ranges, sanitize_input_data
+        validate_patient_data_ranges(patient_data)
+        patient_data = sanitize_input_data(patient_data)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    async def event_stream() -> AsyncGenerator[str, None]:
+        try:
+            # Run prediction (without LLM — we stream that separately)
+            result = await asyncio.to_thread(
+                service.predict, patient_data, True, False
+            )
+
+            if not result.get("success"):
+                yield f"data: {json.dumps({'type': 'error', 'message': result.get('error', 'Prediction failed')})}\n\n"
+                return
+
+            # Emit prediction data immediately so the frontend can render the gauge
+            shap_exp = result.get("explanation") or {}
+            prediction_payload = {
+                "type": "prediction",
+                "data": {
+                    "prediction_id": result["prediction_id"],
+                    "risk_probability": result["risk_probability"],
+                    "risk_level": result["risk_level"],
+                    "confidence_interval": result.get("confidence_interval"),
+                    "model_info": result.get("model_info"),
+                    "explanation": shap_exp,
+                    "medical_disclaimer": result.get("medical_disclaimer", ""),
+                    "timestamp": result["timestamp"],
+                    "success": True,
+                },
+            }
+            yield f"data: {json.dumps(prediction_payload)}\n\n"
+
+            # Stream LLM explanation token-by-token
+            risk_factors = (shap_exp.get("top_risk_factors") or []) if isinstance(shap_exp, dict) else []
+            protective_factors = (shap_exp.get("top_protective_factors") or []) if isinstance(shap_exp, dict) else []
+
+            # Pre-generate recommendations + questions (fast, no streaming needed)
+            recs = await asyncio.to_thread(
+                service.llm_generator.generate_lifestyle_recommendations,
+                result["risk_probability"], risk_factors, patient_data
+            )
+            qs = await asyncio.to_thread(
+                service.llm_generator.generate_doctor_questions,
+                result["risk_probability"], risk_factors, patient_data
+            )
+
+            # Emit metadata before streaming text
+            yield f"data: {json.dumps({'type': 'meta', 'recommendations': recs, 'doctor_questions': qs})}\n\n"
+
+            # Stream explanation text
+            gen = service.llm_generator.stream_risk_explanation(
+                result["risk_probability"], risk_factors, protective_factors,
+                recs, qs, patient_data
+            )
+            for chunk in gen:
+                yield f"data: {json.dumps({'type': 'text', 'chunk': chunk})}\n\n"
+
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
+        except Exception as e:
+            logger.error(f"Streaming prediction failed: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Streaming failed. Please use /predict instead.'})}\n\n"
+
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",  # disable nginx buffering
+        },
+    )
+
+
+@router.get("/example")
+async def get_example_request():
+    """
+    Get an example prediction request for testing.
+
+    Returns:
+        dict: Example request structure
+    """
+    return {
+        "patient_data": {
+            "age": 45,
+            "sex": 1,
+            "cp": 2,
+            "trestbps": 130,
+            "chol": 250,
+            "fbs": 0,
+            "restecg": 0,
+            "thalach": 175,
+            "exang": 0,
+            "oldpeak": 1.2,
+            "slope": 1,
+            "ca": 1,
+            "thal": 2
+        },
+        "options": {
+            "include_explanation": True,
+            "include_llm_explanation": True
+        }
+    }
+
+
+@router.get("/features")
+async def get_feature_descriptions():
+    """
+    Get descriptions of all input features.
+
+    Returns:
+        dict: Feature descriptions and valid ranges
+    """
+    from utils.constants import FEATURE_DESCRIPTIONS, FEATURE_RANGES
+
+    feature_info = {}
+    for feature in FEATURE_DESCRIPTIONS:
+        feature_info[feature] = {
+            "description": FEATURE_DESCRIPTIONS[feature],
+            "range": FEATURE_RANGES.get(feature, {"min": None, "max": None})
+        }
+
+    return {
+        "features": feature_info,
+        "note": "All values should be provided as numbers. See API documentation for detailed descriptions."
+    }

@@ -1,0 +1,255 @@
+/* ============================================================
+   CodeStory – global styles (plain CSS, no framework needed)
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background: #0d1117;
+  color: #c9d1d9;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ── Layout ─────────────────────────────────────────────── */
+.app {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.app-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #21262d;
+  padding-bottom: 1rem;
+}
+
+.app-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #e6edf3;
+  letter-spacing: -0.5px;
+}
+
+.app-header h1 span { color: #58a6ff; }
+
+.app-header p {
+  margin-top: 0.25rem;
+  color: #8b949e;
+  font-size: 0.9rem;
+}
+
+/* ── Form card ──────────────────────────────────────────── */
+.card {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-group.full-width { grid-column: 1 / -1; }
+
+label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input[type="text"],
+input[type="number"] {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  padding: 0.55rem 0.75rem;
+  color: #c9d1d9;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+input:focus { border-color: #58a6ff; }
+
+.divider {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #484f58;
+  font-size: 0.8rem;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 44%;
+  height: 1px;
+  background: #21262d;
+}
+.divider::before { left: 0; }
+.divider::after  { right: 0; }
+
+/* ── Button ─────────────────────────────────────────────── */
+.btn-run {
+  margin-top: 1.25rem;
+  background: #238636;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.65rem 1.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-run:hover:not(:disabled) { background: #2ea043; }
+.btn-run:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Status / error ─────────────────────────────────────── */
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: #58a6ff;
+  font-size: 0.88rem;
+  padding: 0.75rem 0;
+}
+
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid #21262d;
+  border-top-color: #58a6ff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-box {
+  background: #1f1116;
+  border: 1px solid #f85149;
+  border-radius: 6px;
+  padding: 0.85rem 1rem;
+  color: #f85149;
+  font-size: 0.88rem;
+}
+
+/* ── Narrative ──────────────────────────────────────────── */
+.narrative-box {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.narrative-box h2 {
+  font-size: 1rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+}
+
+/* Markdown rendering overrides */
+.narrative-box .md h2 {
+  font-size: 1.1rem;
+  color: #e6edf3;
+  border-bottom: 1px solid #21262d;
+  padding-bottom: 0.3rem;
+  margin: 1.2rem 0 0.6rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.narrative-box .md p  { margin-bottom: 0.7rem; color: #c9d1d9; }
+.narrative-box .md ul { padding-left: 1.4rem; margin-bottom: 0.7rem; }
+.narrative-box .md li { margin-bottom: 0.3rem; }
+.narrative-box .md code {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  font-size: 0.85em;
+  color: #79c0ff;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+}
+
+/* ── Timeline ───────────────────────────────────────────── */
+.timeline-box {
+  background: #161b22;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+}
+
+.timeline-box h2 {
+  font-size: 1rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+}
+
+.timeline-list { list-style: none; }
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 72px 100px 1fr auto;
+  gap: 0.5rem 1rem;
+  align-items: start;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #21262d;
+  font-size: 0.85rem;
+}
+
+.timeline-item:last-child { border-bottom: none; }
+
+.sha {
+  font-family: "JetBrains Mono", monospace;
+  color: #58a6ff;
+  font-size: 0.8rem;
+}
+
+.ts { color: #484f58; white-space: nowrap; }
+
+.commit-msg { color: #c9d1d9; }
+
+.issue-tags {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.issue-tag {
+  background: #1f3564;
+  color: #79c0ff;
+  border-radius: 999px;
+  padding: 0.1em 0.55em;
+  font-size: 0.75rem;
+  font-family: monospace;
+}
+
+/* ── Meta bar ───────────────────────────────────────────── */
+.meta-bar {
+  font-size: 0.8rem;
+  color: #484f58;
+  margin-bottom: 0.5rem;
+}

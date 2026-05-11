@@ -14,7 +14,6 @@ videoUrl: "https://drive.google.com/file/d/1UsR38H6tjVJFMIPJ9dHWXZYOjvL6B5pF/vie
 thumbnail: "https://drive.google.com/file/d/1gcT9Vu42t78BLpzFexai7Nr60_hiaue7/view?usp=sharing"
 githubUrl: "https://github.com/iMeet07/deepwrite"
 ---
-
 # DeepWrite: The Agentic Planning & Research Engine
 
 A multi-agent AI pipeline that researches, plans, writes, fact-checks, and SEO-audits a full technical blog post — end to end — in under 90 seconds.

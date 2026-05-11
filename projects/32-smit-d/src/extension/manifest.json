@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Lucent",
+  "version": "0.1.0",
+  "description": "AI-powered listing truth detector for Airbnb listings.",
+  "host_permissions": ["http://localhost:8000/*"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.airbnb.com/rooms/*"],
+      "js": ["content.js"],
+      "css": ["sidebar.css"],
+      "run_at": "document_idle"
+    }
+  ]
+}
