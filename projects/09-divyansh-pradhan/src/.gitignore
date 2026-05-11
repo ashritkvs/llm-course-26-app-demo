@@ -1,0 +1,35 @@
+# ==========================
+# 1. Backend (Python/Flask)
+# ==========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Security & Secrets (CRITICAL)
+backend/.env
+.env
+
+# Databases & User Data
+backend/users.db
+backend/store/
+
+# ==========================
+# 2. Frontend (Next.js/React)
+# ==========================
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+
+# Frontend Secrets (Just in case you add them later)
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# ==========================
+# 3. OS & System Files
+# ==========================
+.DS_Store
+Thumbs.db
+todo.txt
