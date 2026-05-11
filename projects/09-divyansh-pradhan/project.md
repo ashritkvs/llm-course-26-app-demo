@@ -1,5 +1,5 @@
 ---
-slug: finsight-ai-divyansh
+slug: 09-divyansh-pradhan
 title: FinSight AI
 students:
   - Divyansh Pradhan
@@ -17,10 +17,9 @@ semester: "Spring 2026"
 shortTitle: "FinSight"
 studentId: "116740780"
 videoUrl: "https://drive.google.com/file/d/1-93NTC-n3hGwGv0aa9awQ117i-dabzeQ/view?usp=drive_link"
-thumbnail: "https://drive.google.com/file/d/1B5o1c7VpyXtdGqK0Wsv-r_S674fKtylE/view?usp=drive_link"
+thumbnail: /thumbnails/09-divyansh-pradhan.png
 githubUrl: "https://github.com/Divyansh1414/finsight-ai"
 ---
-
 ## Problem
 
 Manual expense tracking is the number one reason people fail at personal budgeting. Existing financial applications require tedious manual entry of categories, amounts, and dates, leading to "data fatigue" and abandoned trackers. Without consistent logging, users lack the actionable data needed to make informed financial decisions.
