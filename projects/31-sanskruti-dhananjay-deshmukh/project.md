@@ -57,15 +57,17 @@ FridgeRAG maintains a live inventory of fridge contents (populated by scanning r
 - **APScheduler** — cron-style scheduler for expiry alerts
 - **JSON file store** — lightweight persistence for fridge inventory (`fridgerag/data/fridge.json`)
 
-Features
+## Features
+
 - Track fridge items and expiry alerts.
 - Suggest recipes based on current ingredients.
 - Simple HTTP API and a bot interface for interaction.
 
-Repository layout
+## Repository Layout
+
 - `fridgerag/` — main application package
 	- `run.py` — application entrypoint
-	- `api/` — FastAPI (or similar) HTTP routes
+	- `api/` — FastAPI HTTP routes
 		- `routes/fridge.py` — fridge endpoints
 		- `routes/cook.py` — recipe/cooking endpoints
 		- `routes/receipt.py` — receipt/ingestion endpoints
@@ -74,61 +76,30 @@ Repository layout
 	- `services/` — integrations (Gemini, Groq, store)
 	- `scheduler/expiry_alert.py` — scheduled expiry alerts
 
-Quick start
+## Quick Start
 
-Prerequisites
-- Python 3.10+ recommended
-- Create a virtual environment:
+Prerequisites: Python 3.10+
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-```
-
-Install dependencies
-
-```bash
 pip install -r fridgerag/requirements.txt
-```
-
-Run the app (development)
-
-```bash
 cd fridgerag
 python run.py
 ```
 
-Notes: on Windows use the provided `start.ps1`/`stop.ps1` scripts.
+On Windows use the provided `start.ps1` / `stop.ps1` scripts.
 
-API
-- The HTTP API is defined under `fridgerag/api/`. Check `fridgerag/api/routes/` for endpoints:
-	- Fridge management: `fridgerag/api/routes/fridge.py`
-	- Cooking/recipe: `fridgerag/api/routes/cook.py`
-	- Receipt ingestion: `fridgerag/api/routes/receipt.py`
+## API
 
-Bot
-- The bot implementation lives in `fridgerag/bot/bot.py` with commands in `fridgerag/bot/commands/`.
-- Use the bot to add/remove items and request recipes interactively.
+- `GET/POST /fridge` — fridge management (`fridgerag/api/routes/fridge.py`)
+- `GET/POST /cook` — recipe suggestions (`fridgerag/api/routes/cook.py`)
+- `POST /receipt` — receipt ingestion (`fridgerag/api/routes/receipt.py`)
 
-Data
-- `fridgerag/data/fridge.json` is a small JSON store used by the app. Back this up before clearing or editing manually.
+## Bot
 
-Services & configuration
-- Integrations live in `fridgerag/services/`. Some services (e.g., Gemini, Groq) may require API keys or environment configuration — consult the service modules for expected environment variables.
+The bot lives in `fridgerag/bot/bot.py` with commands in `fridgerag/bot/commands/`. Use it to add/remove items and request recipes interactively.
 
-Development
-- Follow the Quick start steps to set up the environment.
-- Add new endpoints under `fridgerag/api/routes/` and corresponding tests.
+## Configuration
 
-Contributing
-- Open an issue or submit a PR with a clear description of your change.
-
-License
-- No license specified. Add a `LICENSE` file if you intend to open-source this project.
-
-Troubleshooting & next steps
-- If you run into missing keys for external services, check `fridgerag/services/` for environment variable names.
-- To add unit tests, create a `tests/` folder and run them with `pytest`.
-
-Contact
-- For questions or pairing help, ask in the repository or open an issue.
+API keys for Gemini and Groq are read from environment variables. See `fridgerag/.envExample` for the required variable names and `fridgerag/services/` for usage.
