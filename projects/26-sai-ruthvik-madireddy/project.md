@@ -11,14 +11,13 @@ tags:
 category: other
 tagline: Your personal AI college counselor — get a full admissions strategy in 60 seconds.
 featuredEligible: true
-semester: Spring 2026
+semester: "Spring 2026"
 shortTitle: GetIn.School
 studentId: "116643502"
 videoUrl: https://drive.google.com/file/d/1VyOZuEDvtEMV66TF2PoZ4nwExBW79eUe/view?usp=drive_link
-thumbnail: https://drive.google.com/file/d/1jYtSl9DKkjAt2iMAa3c6EQB-Ncg-pq8Y/view?usp=drive_link
+thumbnail: /thumbnails/26-sai-ruthvik-madireddy.png
 githubUrl: https://github.com/sruthvik/getin-school
 ---
-
 ## Problem
 
 Millions of students apply to college with zero personalized guidance. Professional counselors charge $200-500/hr and most students cannot afford this. First-generation and international students are completely on their own.
