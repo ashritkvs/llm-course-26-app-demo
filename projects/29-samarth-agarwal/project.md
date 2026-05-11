@@ -1,5 +1,5 @@
 ---
-slug: ai-pentest-scanner
+slug: 29-samarth-agarwal
 title: AI Pentest Scanner
 students:
  - Samarth Agarwal
@@ -8,8 +8,8 @@ tags:
  - multi-agent
  - penetration-testing
  - llm
-category: Agentic AI App
-tagline: An autonomous, AI-driven penetration testing pipeline leveraging multi-agent systems for comprehensive security scanning.
+category: developer-tools
+tagline: AI-powered pentest scanner that automates vulnerability discovery and reporting
 featuredEligible: true
 
 semester: "Spring 2026"
