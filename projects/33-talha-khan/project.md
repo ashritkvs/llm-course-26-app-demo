@@ -24,7 +24,7 @@ shortTitle: "SmartSession"
 
 studentId: "107265287"
 
-videoUrl: "https://drive.google.com/file/d/1oK3NtVgKKjW3QtTHOAMQYeFpPDtRrHoN/view?usp=share_link"
+videoUrl: "https://drive.google.com/file/d/1q_S7ImJChfxnV4Bl4vt-UibiMf_UsHxj/view?usp=share_link"
 
 thumbnail: /thumbnails/33-talha-khan.png
 
