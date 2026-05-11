@@ -26,11 +26,10 @@ studentId: "116237374"
 
 videoUrl: "https://drive.google.com/file/d/1gNF3GzHBZRDrQd5f7GwyoTtwHGiR1Z0k/view?usp=drive_link"
 
-thumbnail: "https://drive.google.com/file/d/1SHbCIgc7q2Zehm18ognIeEbXjeq-jF_q/view?usp=drive_link"
+thumbnail: /thumbnails/24-parth-pidadi.png
 
 githubUrl: "https://github.com/Parth-Pidadi/docbrain"
 ---
-
 ## Problem
 
 Managing financial and legal documents is tedious — extracting key data from receipts, invoices, bank statements, and contracts requires manual effort and is error-prone. There is no easy way to ask natural-language questions across a personal document library.
