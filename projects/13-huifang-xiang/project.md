@@ -1,5 +1,5 @@
 ---
-slug: ta-reply-copilot
+slug: 13-huifang-xiang
 
 title: TA Reply Copilot
 
@@ -24,9 +24,8 @@ studentId: "117410637"
 
 videoUrl: "https://drive.google.com/file/d/1HqHF4LYP73jIJx-HUlOEXy7Hlc-jPYEX/view?usp=drive_link"
 
-thumbnail: "https://drive.google.com/file/d/1LpNd6XFMEM9C2ePSOgrO3J_2TFwvLqr0/view?usp=drive_link"
+thumbnail: /thumbnails/13-huifang-xiang.png
 ---
-
 ## Problem
 
 TAs often need to answer repeated student questions about course rules, deadlines, late policies, and assignment requirements. It is easy to miss a policy detail or give an answer without clear evidence, especially when information is spread across syllabi, announcements, rubrics, and presentation rules.
