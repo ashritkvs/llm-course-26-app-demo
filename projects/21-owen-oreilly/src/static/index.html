@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codebase Visualization - Unified Search</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; height: 100vh; display: flex; flex-direction: column; }
+        header { padding: 15px 20px; background: #ffffff; border-bottom: 1px solid #cbd5e1; }
+        header h2 { margin: 0 0 5px 0; font-size: 20px; color: #1e293b; }
+        header p { margin: 0; font-size: 14px; color: #475569; }
+        
+        .header-flex { display: flex; justify-content: space-between; align-items: center; }
+
+        #toolbar { background-color: #f1f5f9; padding: 10px 20px; border-bottom: 1px solid #cbd5e1; display: flex; gap: 10px; align-items: center; }
+        
+        .tool-btn { padding: 6px 14px; background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; color: #334155; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .tool-btn:hover { background-color: #e2e8f0; border-color: #64748b; }
+        .tool-btn:active { background-color: #cbd5e1; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
+        .tool-btn.active-toggle { background-color: #3b82f6; color: #ffffff; border-color: #2563eb; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+        .tool-btn.active-toggle:hover { background-color: #2563eb; }
+        .upload-btn { background-color: #10b981; color: #ffffff; border-color: #059669; }
+        .upload-btn:hover { background-color: #059669; color: #ffffff; }
+
+        #app-container { display: flex; flex: 1; overflow: hidden; }
+        
+        #sidebar { width: 280px; background: #ffffff; border-right: 1px solid #cbd5e1; display: flex; flex-direction: column; box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10; }
+        #search-container { padding: 15px; border-bottom: 1px solid #e2e8f0; }
+        #search-input { width: 100%; padding: 8px 12px; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; }
+        #method-list { flex: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; }
+        .list-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-family: monospace; font-size: 12px; color: #334155; transition: background 0.1s; }
+        .list-item:hover { background: #e0f2fe; }
+        .list-item .meta { font-size: 10px; color: #94a3b8; display: block; margin-top: 3px; }
+
+        #visualization-container { flex: 1; overflow: hidden; padding: 0; position: relative; }
+        #visualization svg { cursor: grab; width: 100%; height: 100%; }
+        #visualization svg:active { cursor: grabbing; }
+
+        .file-group { cursor: grab; }
+        .file-group:active { cursor: grabbing; }
+        .file-rect { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2px; rx: 8px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); transition: stroke 0.2s, stroke-width 0.2s; }
+        .file-rect.is-dragging { stroke: #3b82f6; stroke-width: 4px; filter: drop-shadow(4px 4px 6px rgba(0,0,0,0.2)); }
+        .file-title { font-size: 14px; font-weight: bold; fill: #334155; pointer-events: none; }
+
+        .class-node { cursor: pointer; }
+        .class-rect { fill: #3b82f6; stroke: #ffffff; stroke-width: 1.5px; transition: fill 0.2s, stroke 0.2s, stroke-width 0.2s; }
+        .class-node:hover .class-rect { fill: #2563eb; }
+        .class-label { font-size: 12px; font-weight: bold; fill: #ffffff; pointer-events: none; }
+        
+        .menu-bg { fill: #1e293b; stroke: #3b82f6; stroke-width: 2px; rx: 6px; }
+        .menu-title { fill: #ffffff; font-weight: bold; font-size: 12px; pointer-events: none; }
+        .menu-method { fill: #94a3b8; font-size: 11px; font-family: monospace; cursor: pointer; transition: fill 0.2s; }
+        .menu-method.active, .menu-method.is-pinned { fill: #fbbf24; font-weight: bold; }
+        
+        .method-dependency-line { stroke: #f59e0b; stroke-width: 2px; stroke-dasharray: 4 4; opacity: 0.8; pointer-events: none; }
+        .class-dependency-line { stroke: #10b981; stroke-width: 2.5px; opacity: 0.6; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-flex">
+            <div>
+                <h2>Codebase Architecture</h2>
+                <p><strong>Click</strong> to expand nodes. <strong>Shift+Click</strong> to pin and anchor file boxes from physics.<br><strong>Scroll</strong> to zoom, <strong>Drag background</strong> to pan.</p>
+            </div>
+            <div>
+                <button id="btn-upload" class="tool-btn upload-btn">Upload Code .zip</button>
+                <input type="file" id="file-input" accept=".zip" style="display: none;">
+            </div>
+        </div>
+    </header>
+    
+    <div id="toolbar">
+        <button id="btn-condense" class="tool-btn">Condense</button>
+        <button id="btn-show-all" class="tool-btn">Show All</button>
+        <button id="btn-physics" class="tool-btn">Enable Physics</button>
+    </div>
+
+    <div id="app-container">
+        <div id="sidebar">
+            <div id="search-container">
+                <input type="text" id="search-input" placeholder="Search classes or methods...">
+            </div>
+            <ul id="method-list"></ul>
+        </div>
+        <div id="visualization-container">
+            <div id="visualization"></div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. INITIAL DATA ---
+        let fileClasses = {
+            "amber_typer": ["ATOM_TYPE_NODE", "ATOM_TYPE", "ATOM_TYPER", "BOND_TYPE", "BOND_TYPER", "CHEM_TYPE", "CHEM_TYPER", "PH4_TYPE", "PH4_TYPER", "AMBER_TYPER"],
+            "base_grid": ["Base_Grid"],
+            "base_mpi": ["Base_MPI"],
+            "base_score": ["Base_Score"]
+        };
+
+        let classMethods = {
+            "ATOM_TYPE": ["ATOM_TYPE", "ATOM_TYPE"],
+            "ATOM_TYPER": ["get_vdw_labels", "assign_vdw_labels"],
+            "BOND_TYPER": ["get_flex_search", "get_flex_labels", "apply_flex_labels", "is_rotor"],
+            "CHEM_TYPER": ["get_chem_labels", "apply_chem_labels"],
+            "PH4_TYPER": ["get_ph4_labels", "apply_ph4_labels"],
+            "AMBER_TYPER": ["initialize", "input_parameters", "assign_hbond_labels", "prepare_molecule", "prepare_for_torsions", "getMW"],
+            "Base_Grid": ["Base_Grid", "read_header", "calc_corner_coords", "is_inside_grid_box", "find_grid_neighbors", "interpolate", "find_grid_index"],
+            "Base_MPI": ["input_parameters", "initialize_mpi", "finalize_mpi", "continue_reading_mols", "is_master_node", "is_client_node", "add_to_send_queue", "get_from_send_queue", "add_to_recv_queue", "get_from_recv_queue", "listen_for_request", "is_receive_request", "is_send_request", "send_queue_request", "transmit_send_queue", "recv_queue_request", "receive_recv_queue", "barrier"],
+            "Base_Score": ["Base_Score", "Base_Score", "initialize_internal_energy", "compute_ligand_internal_energy", "init_vdw_energy"]
+        };
+
+        let methodConnectivityData = {
+            "dockmol>DOCKMol>get_atom_neighbors": ["amber_typer>ATOM_TYPER", "iso_align>Iso_Align", "iso_align>std"],
+            "utils>Parameter_Reader>query_param": ["amber_typer>AMBER_TYPER", "conf_gen_dn>DN_Build", "conf_gen_dn_ga>DN_GA_Build", "conf_gen_ga>GA_Recomb", "filter>Filter", "fingerprint>Fingerprint", "library_file>Library_File", "limit_max_change>LimitMaxChange", "master_score>Master_Score", "orient>Orient", "score>Bump_Filter", "score>Energy_Score", "score>Continuous_Energy_Score", "score>Contact_Score", "score_amber>Amber_Score", "score_chemgrid>Shape_Filter", "score_chemgrid>Chemgrid_Score", "score_descriptor>Descriptor_Energy_Score", "score_footprint>Footprint_Similarity_Score", "score_gist>GIST_Score", "score_hbond>Hbond_Energy_Score", "score_internal>Internal_Energy_Score", "score_multigrid>Multigrid_Energy_Score", "score_ph4>Ph4_Score", "score_sasa>SASA_score", "score_solvent>GB_Pairwise", "score_solvent>GB_Hawkins", "score_volume>Volume_Score", "simplex>Simplex_Minimizer", "sphere>Active_Site_Spheres"],
+            "utils>Parameter_Reader>verbosity_level": ["amber_typer>AMBER_TYPER", "conf_gen_dn_ga>DN_GA_Build", "conf_gen_ga>GA_Recomb", "orient>Orient", "score_amber>Amber_Score", "score_sasa>SASA_score", "score_solvent>GB_Pairwise", "score_solvent>GB_Hawkins"],
+            "amber_typer>ATOM_TYPER>get_vdw_labels": ["amber_typer>AMBER_TYPER"],
+            "amber_typer>BOND_TYPER>get_flex_labels": ["amber_typer>AMBER_TYPER"],
+            "amber_typer>BOND_TYPER>get_flex_search": ["amber_typer>AMBER_TYPER"],
+            "amber_typer>CHEM_TYPER>get_chem_labels": ["amber_typer>AMBER_TYPER", "conf_gen_dn>DN_Build"],
+            "amber_typer>PH4_TYPER>get_ph4_labels": ["amber_typer>AMBER_TYPER"],
+            "amber_typer>ATOM_TYPER>assign_vdw_labels": ["amber_typer>AMBER_TYPER"]
+        };
+
+        let classConnectivityData = {
+            "dockmol>DOCKMol": ["amber_typer>ATOM_TYPER", "base_mpi>Base_MPI", "base_score>Base_Score", "conf_gen_dn>DN_Build", "conf_gen_dn>std", "conf_gen_dn_ga>DN_GA_Build", "conf_gen_ga>GA_Recomb", "conf_gen_ga>std", "fragment>Fragment", "iso_align>Iso_Align", "iso_align>std", "library_file>Library_File", "orient>Orient", "rdtyper>RDTYPER", "score_amber>Amber_Score", "simplex>Simplex_Minimizer"],
+            "amber_typer>ATOM_TYPER": ["amber_typer>AMBER_TYPER"],
+            "amber_typer>BOND_TYPER": ["amber_typer>AMBER_TYPER"],
+            "amber_typer>CHEM_TYPER": ["amber_typer>AMBER_TYPER", "conf_gen_dn>DN_Build"],
+            "amber_typer>PH4_TYPER": ["amber_typer>AMBER_TYPER"]
+        };
+
+        let allSearchItems = [];
+        let isPhysicsEnabled = false;
+        let physicsSimulation = null;
+        let classCoordinates = {};
+        
+        let activePhysicsFiles = new Set();
+        let pinnedFiles = new Set(); 
+
+        // --- CUSTOM D3 RECTANGULAR COLLISION FORCE ---
+        function rectCollide(padding = 0) {
+            let nodes;
+            function force(alpha) {
+                const quad = d3.quadtree(nodes, d => d.x + d.width / 2, d => d.y + d.height / 2);
+                for (const d of nodes) {
+                    quad.visit((q, x1, y1, x2, y2) => {
+                        let updated = false;
+                        if (q.data && q.data !== d) {
+                            const d2 = q.data;
+                            
+                            const w1 = d.width + padding;
+                            const h1 = d.height + padding;
+                            const w2 = d2.width + padding;
+                            const h2 = d2.height + padding;
+                            
+                            const cx1 = d.x + d.width / 2;
+                            const cy1 = d.y + d.height / 2;
+                            const cx2 = d2.x + d2.width / 2;
+                            const cy2 = d2.y + d2.height / 2;
+                            
+                            const dx = cx1 - cx2;
+                            const dy = cy1 - cy2;
+                            
+                            const absX = Math.abs(dx);
+                            const absY = Math.abs(dy);
+                            
+                            const minX = (w1 + w2) / 2;
+                            const minY = (h1 + h2) / 2;
+                            
+                            if (absX < minX && absY < minY) {
+                                const overlapX = minX - absX;
+                                const overlapY = minY - absY;
+                                
+                                if (overlapX < overlapY) {
+                                    const sign = dx > 0 ? 1 : -1;
+                                    let adjustD = d.fx == null ? 1 : 0;
+                                    let adjustD2 = d2.fx == null ? 1 : 0;
+                                    let totalAdjust = adjustD + adjustD2;
+                                    
+                                    if (totalAdjust > 0) {
+                                        const adjustment = (overlapX * alpha) / totalAdjust;
+                                        if (adjustD) d.x += sign * adjustment;
+                                        if (adjustD2) d2.x -= sign * adjustment;
+                                    }
+                                } else {
+                                    const sign = dy > 0 ? 1 : -1;
+                                    let adjustD = d.fy == null ? 1 : 0;
+                                    let adjustD2 = d2.fy == null ? 1 : 0;
+                                    let totalAdjust = adjustD + adjustD2;
+                                    
+                                    if (totalAdjust > 0) {
+                                        const adjustment = (overlapY * alpha) / totalAdjust;
+                                        if (adjustD) d.y += sign * adjustment;
+                                        if (adjustD2) d2.y -= sign * adjustment;
+                                    }
+                                }
+                                updated = true;
+                            }
+                        }
+                        return updated;
+                    });
+                }
+            }
+            force.initialize = _ => nodes = _;
+            return force;
+        }
+
+        // --- UPLOAD LOGIC ---
+        d3.select("#btn-upload").on("click", () => document.getElementById("file-input").click());
+
+        document.getElementById("file-input").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append("file", file);
+            event.target.value = ''; 
+
+            fetch("http://localhost:8001/pass_codebase", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.file_classes && data.class_methods) {
+                    fileClasses = data.file_classes;
+                    classMethods = data.class_methods;
+                    methodConnectivityData = data.method_connectivity || {};
+                    classConnectivityData = data.class_connectivity || {};
+                    rebuildVisualization();
+                } else {
+                    console.warn("Discrepancy: Data lacked expected top-level keys.", data);
+                    alert("The backend response lacked the 'file_classes' or 'class_methods' top level keys. Please check the console.");
+                }
+            })
+            .catch(err => {
+                console.error("Upload failed", err);
+                alert("Upload failed. Make sure your Python backend is running on http://localhost:8001.");
+            });
+        });
+
+        // --- MASTER REBUILD FUNCTION ---
+        function rebuildVisualization() {
+            // Reset state
+            isPhysicsEnabled = false;
+            if (physicsSimulation) {
+                physicsSimulation.stop();
+                physicsSimulation = null;
+            }
+            d3.select("#btn-physics").classed("active-toggle", false).text("Enable Physics");
+            d3.select("#btn-show-all").classed("active-toggle", false).text("Show All");
+            classCoordinates = {};
+            activePhysicsFiles.clear();
+            pinnedFiles.clear();
+            d3.select("#visualization").selectAll("*").remove(); 
+
+            allSearchItems = [];
+            const codebaseData = Object.entries(fileClasses).map(([filename, classes]) => {
+                classes.forEach(cls => {
+                    // Populate classes for search
+                    allSearchItems.push({
+                        type: "class",
+                        id: `${filename}>${cls}`,
+                        file: filename, cls: cls, display: `${cls}`
+                    });
+
+                    // Populate methods for search
+                    const methods = classMethods[cls] || [];
+                    methods.forEach(method => {
+                        allSearchItems.push({
+                            type: "method",
+                            id: `${filename}>${cls}>${method}`,
+                            file: filename, cls: cls, method: method, display: `${cls}.${method}()`
+                        });
+                    });
+                });
+                return { filename: filename, classes: classes, isDragging: false };
+            });
+
+            // Sidebar Rendering
+            function renderSidebarList(filterText) {
+                const listContainer = d3.select("#method-list");
+                listContainer.selectAll("*").remove();
+                const filtered = allSearchItems.filter(m => 
+                    m.display.toLowerCase().includes(filterText.toLowerCase()) || 
+                    m.file.toLowerCase().includes(filterText.toLowerCase())
+                );
+                filtered.forEach(m => {
+                    const li = listContainer.append("li").attr("class", "list-item").on("click", () => handleSidebarClick(m));
+                    li.append("span").text(m.display);
+                    // Dynamically display Class vs Method
+                    li.append("span").attr("class", "meta").text(`${m.type === 'class' ? 'Class' : 'Method'} in ${m.file}`);
+                });
+            }
+
+            d3.select("#search-input").on("input", null).on("input", function() { renderSidebarList(this.value); });
+            renderSidebarList(d3.select("#search-input").property("value")); 
+
+            function handleSidebarClick(itemObj) {
+                const classLookupKey = `${itemObj.file}>${itemObj.cls}`;
+
+                // Close other expanded nodes
+                d3.selectAll(".class-node.is-expanded").each(function() {
+                    if (d3.select(this).attr("data-lookup") !== classLookupKey) {
+                        this.dispatchEvent(new MouseEvent("click"));
+                    }
+                });
+
+                const targetClassNode = d3.selectAll(".class-node").filter(function() { return d3.select(this).attr("data-lookup") === classLookupKey; });
+                if (targetClassNode.empty()) return;
+
+                if (itemObj.type === "class") {
+                    // If the class is already expanded (function box shown), simulate a normal click to close it first
+                    if (targetClassNode.classed("is-expanded")) {
+                        targetClassNode.node().dispatchEvent(new MouseEvent("click"));
+                    }
+
+                    // Dispatch a Shift+Click to pin the class
+                    if (!targetClassNode.classed("is-class-pinned")) {
+                        targetClassNode.node().dispatchEvent(new MouseEvent("click", { shiftKey: true }));
+                    }
+
+                } else if (itemObj.type === "method") {
+                    const methodLookupKey = itemObj.id;
+
+                    // Normal click opens the class expansion if not already open
+                    if (!targetClassNode.classed("is-expanded")) {
+                        targetClassNode.node().dispatchEvent(new MouseEvent("click"));
+                    }
+
+                    // Click the specific method to pin its vectors
+                    const targetMethodNode = targetClassNode.selectAll(".menu-method").filter(function() { return d3.select(this).attr("data-method-lookup") === methodLookupKey; });
+                    if (!targetMethodNode.empty() && !targetMethodNode.classed("is-pinned")) {
+                        targetMethodNode.node().dispatchEvent(new MouseEvent("click"));
+                    }
+                }
+            }
+
+            // --- SVG Generation & Layout ---
+            const svgWidth = 1200; 
+            let svgHeight = 800;   
+            
+            const classRectWidth = 150;
+            const classRectHeight = 32;
+            const classGapY = 12;
+
+            const padLeft = 25, padRight = 25, padTop = 45, padBottom = 25;
+            const baseGapX = 30, baseGapY = 30, startX = 20;
+            
+            let currentX = startX, currentY = 20, currentRowMaxHeight = 0;
+
+            codebaseData.forEach(d => {
+                const classCount = d.classes.length;
+                d.width = padLeft + classRectWidth + padRight;
+                d.height = padTop + (classCount * classRectHeight) + (Math.max(0, classCount - 1) * classGapY) + padBottom;
+
+                if (currentX + d.width > svgWidth - startX && currentX !== startX) {
+                    currentX = startX; currentY += currentRowMaxHeight + baseGapY; currentRowMaxHeight = 0;
+                }
+                d.absoluteX = currentX; d.absoluteY = currentY;
+                currentX += d.width + baseGapX; currentRowMaxHeight = Math.max(currentRowMaxHeight, d.height);
+            });
+
+            svgHeight = Math.max(svgHeight, currentY + currentRowMaxHeight + baseGapY);
+
+            const svg = d3.select("#visualization")
+                .append("svg")
+                .attr("viewBox", `0 0 ${svgWidth} ${svgHeight}`)
+                .attr("preserveAspectRatio", "xMidYMid meet");
+
+            const defs = svg.append("defs");
+            defs.append("marker").attr("id", "arrow-method").attr("viewBox", "0 -5 10 10").attr("refX", 8).attr("refY", 0).attr("markerWidth", 6).attr("markerHeight", 6).attr("orient", "auto").append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#f59e0b");
+            defs.append("marker").attr("id", "arrow-class").attr("viewBox", "0 -5 10 10").attr("refX", 8).attr("refY", 0).attr("markerWidth", 6).attr("markerHeight", 6).attr("orient", "auto").append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#10b981");
+
+            const zoomGroup = svg.append("g").attr("id", "zoom-group");
+            
+            const fileLayer = zoomGroup.append("g").attr("id", "file-layer");
+            const edgeLayer = zoomGroup.append("g").attr("id", "edge-layer");
+
+            const zoomBehavior = d3.zoom().scaleExtent([0.1, 4]).on("zoom", (event) => { zoomGroup.attr("transform", event.transform); });
+            svg.call(zoomBehavior);
+
+            const classCollisionRadius = 24; 
+
+            // Helpers
+            function calculateTargetEndpoint(startX, startY, targetX, targetY, targetRadius) {
+                const dx = targetX - startX, dy = targetY - startY;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance === 0) return { x: targetX, y: targetY };
+                return { x: targetX - (dx * (targetRadius + 2) / distance), y: targetY - (dy * (targetRadius + 2) / distance) };
+            }
+
+            function drawClassLines(filename, className) {
+                const lookupKey = `${filename}>${className}`;
+                const targetClasses = classConnectivityData[lookupKey];
+                if (!targetClasses) return;
+                const startPoint = classCoordinates[lookupKey];
+
+                targetClasses.forEach(targetKey => {
+                    const targetPoint = classCoordinates[targetKey];
+                    if (targetPoint) {
+                        const lineId = `line-class-${lookupKey.replace(/[^a-zA-Z0-9]/g, '-')}-${targetKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                        if (edgeLayer.select(`#${lineId}`).empty()) {
+                            const adjusted = calculateTargetEndpoint(startPoint.x, startPoint.y, targetPoint.x, targetPoint.y, classCollisionRadius);
+                            edgeLayer.append("line").attr("id", lineId).attr("class", "class-dependency-line")
+                                .datum({ sourceKey: lookupKey, targetKey: targetKey })
+                                .attr("x1", startPoint.x).attr("y1", startPoint.y).attr("x2", adjusted.x).attr("y2", adjusted.y)
+                                .attr("marker-end", "url(#arrow-class)");
+                        }
+                    }
+                });
+            }
+
+            function removeClassLines(filename, className) {
+                const lookupKey = `${filename}>${className}`;
+                edgeLayer.selectAll(".class-dependency-line").filter(d => d.sourceKey === lookupKey).remove();
+            }
+
+            function drawMethodLines(filename, className, method, relX, relY) {
+                const classKey = `${filename}>${className}`;
+                const lookupKey = `${classKey}>${method}`;
+                const targetClasses = methodConnectivityData[lookupKey];
+                if (!targetClasses) return;
+
+                const startX = classCoordinates[classKey].x + relX;
+                const startY = classCoordinates[classKey].y + relY - 4;
+
+                targetClasses.forEach(targetKey => {
+                    const targetPoint = classCoordinates[targetKey];
+                    if (targetPoint) {
+                        const lineId = `line-method-${lookupKey.replace(/[^a-zA-Z0-9]/g, '-')}-${targetKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                        if (edgeLayer.select(`#${lineId}`).empty()) {
+                            const adjusted = calculateTargetEndpoint(startX, startY, targetPoint.x, targetPoint.y, classCollisionRadius);
+                            edgeLayer.append("line").attr("id", lineId).attr("class", "method-dependency-line")
+                                .datum({ sourceKey: lookupKey, targetKey: targetKey, classKey: classKey, relX: relX, relY: relY })
+                                .attr("x1", startX).attr("y1", startY).attr("x2", adjusted.x).attr("y2", adjusted.y)
+                                .attr("marker-end", "url(#arrow-method)");
+                        }
+                    }
+                });
+            }
+
+            function removeMethodLines(filename, className, method) {
+                const lookupKey = `${filename}>${className}>${method}`;
+                edgeLayer.selectAll(".method-dependency-line").filter(d => d.sourceKey === lookupKey).remove();
+            }
+
+            function updateNodeCoordinates(d) {
+                d.classes.forEach((c, i) => {
+                    const centerX = padLeft + classRectWidth / 2;
+                    const centerY = padTop + i * (classRectHeight + classGapY) + classRectHeight / 2;
+                    classCoordinates[`${d.filename}>${c}`] = { x: d.absoluteX + centerX, y: d.absoluteY + centerY };
+                });
+            }
+
+            function updateAllLines() {
+                edgeLayer.selectAll(".class-dependency-line").each(function(lData) {
+                    const startPoint = classCoordinates[lData.sourceKey];
+                    const targetPoint = classCoordinates[lData.targetKey];
+                    if(startPoint && targetPoint) {
+                        const adjusted = calculateTargetEndpoint(startPoint.x, startPoint.y, targetPoint.x, targetPoint.y, classCollisionRadius);
+                        d3.select(this).attr("x1", startPoint.x).attr("y1", startPoint.y).attr("x2", adjusted.x).attr("y2", adjusted.y);
+                    }
+                });
+                edgeLayer.selectAll(".method-dependency-line").each(function(lData) {
+                    const classPoint = classCoordinates[lData.classKey];
+                    const targetPoint = classCoordinates[lData.targetKey];
+                    if(classPoint && targetPoint) {
+                        const startX = classPoint.x + lData.relX;
+                        const startY = classPoint.y + lData.relY - 4;
+                        const adjusted = calculateTargetEndpoint(startX, startY, targetPoint.x, targetPoint.y, classCollisionRadius);
+                        d3.select(this).attr("x1", startX).attr("y1", startY).attr("x2", adjusted.x).attr("y2", adjusted.y);
+                    }
+                });
+            }
+
+            // Drag Behavior
+            const dragHandler = d3.drag()
+                .on("start", function(event, d) {
+                    event.sourceEvent.stopPropagation();
+                    d.isDragging = true;
+                    d3.select(this).raise();
+                    d3.select(this).select(".file-rect").classed("is-dragging", true);
+                    if (isPhysicsEnabled && activePhysicsFiles.has(d.filename) && physicsSimulation) {
+                        physicsSimulation.alphaTarget(0.3).restart();
+                        d.fx = d.absoluteX; d.fy = d.absoluteY;
+                    }
+                })
+                .on("drag", function(event, d) {
+                    d.absoluteX += event.dx; d.absoluteY += event.dy;
+                    if (isPhysicsEnabled && activePhysicsFiles.has(d.filename)) {
+                        d.fx = d.absoluteX; d.fy = d.absoluteY;
+                    } else {
+                        d3.select(this).attr("transform", `translate(${d.absoluteX}, ${d.absoluteY})`);
+                        updateNodeCoordinates(d);
+                        updateAllLines();
+                    }
+                })
+                .on("end", function(event, d) {
+                    d.isDragging = false;
+                    d3.select(this).select(".file-rect").classed("is-dragging", false);
+                    if (isPhysicsEnabled && activePhysicsFiles.has(d.filename) && physicsSimulation) {
+                        physicsSimulation.alphaTarget(0);
+                        if (!pinnedFiles.has(d.filename)) {
+                            d.fx = null; d.fy = null;
+                        }
+                    }
+                });
+
+            // Graph Generation
+            const fileGroups = fileLayer.selectAll(".file-group").data(codebaseData).enter().append("g")
+                .attr("class", "file-group").attr("transform", d => `translate(${d.absoluteX}, ${d.absoluteY})`)
+                .call(dragHandler);
+
+            fileGroups.append("rect").attr("class", "file-rect").attr("width", d => d.width).attr("height", d => d.height);
+            fileGroups.append("text").attr("class", "file-title").attr("x", 15).attr("y", 25).text(d => d.filename);
+
+            fileGroups.each(function(d) {
+                const currentFileGroup = d3.select(this);
+                const classNodes = currentFileGroup.selectAll(".class-node").data(d.classes).enter().append("g")
+                    .attr("class", "class-node").attr("data-lookup", c => `${d.filename}>${c}`)
+                    .attr("transform", (c, i) => {
+                        const centerX = padLeft + classRectWidth / 2;
+                        const centerY = padTop + i * (classRectHeight + classGapY) + classRectHeight / 2;
+                        classCoordinates[`${d.filename}>${c}`] = { x: d.absoluteX + centerX, y: d.absoluteY + centerY };
+                        return `translate(${centerX}, ${centerY})`;
+                    });
+
+                classNodes.append("rect").attr("class", "class-rect").attr("x", -classRectWidth / 2).attr("y", -classRectHeight / 2)
+                    .attr("width", classRectWidth).attr("height", classRectHeight).attr("rx", 6).attr("ry", 6);
+                
+                classNodes.append("text").attr("class", "class-label").attr("x", 0).attr("y", 0).attr("text-anchor", "middle").attr("dy", "0.35em")
+                    .text(c => c.length > 18 ? c.substring(0, 16) + "..." : c);
+
+                classNodes.on("mousedown", function(event) { event.stopPropagation(); });
+
+                classNodes
+                    .on("mouseover", function(event, className) {
+                        const node = d3.select(this);
+                        if (node.classed("is-expanded") || node.classed("is-class-pinned")) return; 
+                        drawClassLines(d.filename, className);
+                    })
+                    .on("mouseout", function(event, className) { 
+                        const node = d3.select(this);
+                        if (node.classed("is-expanded") || node.classed("is-class-pinned")) return; 
+                        removeClassLines(d.filename, className); 
+                    })
+                    .on("click", function(event, className) {
+                        const node = d3.select(this);
+                        
+                        // --- SHIFT-CLICK PINNING LOGIC ---
+                        if (event.shiftKey) {
+                            const isFrozen = node.classed("is-frozen");
+                            if (!isFrozen) {
+                                node.classed("is-class-pinned", true);
+                                node.classed("is-frozen", true); 
+                                node.select(".class-rect").style("stroke", "#fbbf24").style("stroke-width", "3px");
+                                drawClassLines(d.filename, className);
+                            } else {
+                                node.classed("is-class-pinned", false);
+                                node.classed("is-frozen", false); 
+                                node.select(".class-rect").style("stroke", "#ffffff").style("stroke-width", "1.5px");
+                                if (!node.classed("is-expanded")) {
+                                    removeClassLines(d.filename, className);
+                                }
+                            }
+                            updatePhysicsLinks();
+                            return; 
+                        }
+
+                        const isExpanded = node.classed("is-expanded");
+                        const methods = classMethods[className] || ["No methods"];
+                        
+                        if (!isExpanded) {
+                            currentFileGroup.raise(); node.raise();
+                            node.classed("is-expanded", true);
+                            drawClassLines(d.filename, className);
+                            updatePhysicsLinks();
+
+                            node.select(".class-rect").transition().duration(200).style("opacity", 0);
+                            node.select(".class-label").transition().duration(200).style("opacity", 0);
+
+                            const menuWidth = 150; 
+                            const menuHeight = 40 + (methods.length * 18);
+                            const menuGroup = node.append("g").attr("class", "method-menu").style("opacity", 0);
+                            
+                            menuGroup.append("rect").attr("class", "menu-bg").attr("x", -menuWidth / 2).attr("y", -menuHeight / 2).attr("width", menuWidth).attr("height", menuHeight);
+                            menuGroup.append("text").attr("class", "menu-title").attr("x", 0).attr("y", -menuHeight / 2 + 20).attr("text-anchor", "middle").text(className);
+
+                            methods.forEach((method, index) => {
+                                const methodRelativeX = -menuWidth / 2 + 10;
+                                const methodRelativeY = -menuHeight / 2 + 45 + (index * 16);
+                                
+                                const fullText = `+ ${method}()`;
+                                const truncText = fullText.length > 20 ? fullText.substring(0, 17) + "..." : fullText;
+
+                                menuGroup.append("text")
+                                    .attr("class", "menu-method")
+                                    .attr("data-method-lookup", `${d.filename}>${className}>${method}`)
+                                    .attr("x", methodRelativeX).attr("y", methodRelativeY).text(truncText)
+                                    .on("mouseover", function() {
+                                        const methodNode = d3.select(this);
+                                        if (methodNode.classed("is-pinned")) return;
+                                        methodNode.classed("active", true).text(fullText); 
+                                        drawMethodLines(d.filename, className, method, methodRelativeX, methodRelativeY);
+                                    })
+                                    .on("mouseout", function() {
+                                        const methodNode = d3.select(this);
+                                        if (methodNode.classed("is-pinned")) return;
+                                        methodNode.classed("active", false).text(truncText); 
+                                        removeMethodLines(d.filename, className, method);
+                                    })
+                                    .on("click", function(event) {
+                                        event.stopPropagation(); 
+                                        const methodNode = d3.select(this);
+                                        const isPinned = methodNode.classed("is-pinned");
+                                        if (!isPinned) {
+                                            methodNode.classed("is-pinned", true);
+                                            methodNode.classed("active", true).text(fullText); 
+                                            drawMethodLines(d.filename, className, method, methodRelativeX, methodRelativeY);
+                                        } else {
+                                            methodNode.classed("is-pinned", false);
+                                            methodNode.classed("active", false).text(truncText); 
+                                            removeMethodLines(d.filename, className, method);
+                                        }
+                                        updatePhysicsLinks();
+                                    });
+                            });
+                            menuGroup.transition().duration(200).style("opacity", 1);
+                        } else {
+                            node.classed("is-expanded", false);
+                            
+                            if (!node.classed("is-class-pinned")) {
+                                removeClassLines(d.filename, className); 
+                            }
+                            
+                            edgeLayer.selectAll(".method-dependency-line").filter(lData => lData.classKey === `${d.filename}>${className}`).remove();
+                            node.select(".method-menu").transition().duration(200).style("opacity", 0).remove();
+                            node.select(".class-rect").transition().duration(200).style("opacity", 1);
+                            node.select(".class-label").transition().duration(200).style("opacity", 1);
+                            updatePhysicsLinks();
+                        }
+                    });
+            });
+
+            // Physics Custom Force
+            function customLinkForce() {
+                let nodes = [], links = [];
+                function force(alpha) {
+                    links.forEach(link => {
+                        const sourceNode = link.source, targetNode = link.target;
+                        const sourcePoint = classCoordinates[link.sourceKey], targetPoint = classCoordinates[link.targetKey];
+                        
+                        if (sourceNode && targetNode && sourcePoint && targetPoint) {
+                            const dx = targetPoint.x - sourcePoint.x, dy = targetPoint.y - sourcePoint.y;
+                            let l = Math.sqrt(dx * dx + dy * dy); if (l === 0) l = 1;
+                            const dist = 250; 
+                            const f = ((l - dist) / l) * 0.1 * 0.8;
+                            
+                            sourceNode.vx += dx * f; sourceNode.vy += dy * f;
+                            targetNode.vx -= dx * f; targetNode.vy -= dy * f;
+                        }
+                    });
+                }
+                force.initialize = function(_nodes) { nodes = _nodes; };
+                force.links = function(_links) { links = _links; return force; };
+                return force;
+            }
+
+            function updatePhysicsLinks() {
+                if (!isPhysicsEnabled || !physicsSimulation) return;
+                
+                activePhysicsFiles.clear();
+                pinnedFiles.clear();
+                const linkData = [];
+                
+                function registerLink(sourceKey, targetKey) {
+                    const sourceFile = sourceKey.split(">")[0], targetFile = targetKey.split(">")[0];
+                    if (sourceFile !== targetFile) {
+                        activePhysicsFiles.add(sourceFile); activePhysicsFiles.add(targetFile);
+                        const sourceNode = codebaseData.find(d => d.filename === sourceFile);
+                        const targetNode = codebaseData.find(d => d.filename === targetFile);
+                        if(sourceNode && targetNode) linkData.push({ source: sourceNode, target: targetNode, sourceKey: sourceKey, targetKey: targetKey });
+                    }
+                }
+
+                d3.selectAll(".class-node.is-expanded, .class-node.is-class-pinned").each(function() {
+                    const node = d3.select(this);
+                    const lookupKey = node.attr("data-lookup");
+                    
+                    if (node.classed("is-frozen")) {
+                        pinnedFiles.add(lookupKey.split(">")[0]);
+                    }
+                    
+                    const targets = classConnectivityData[lookupKey] || [];
+                    targets.forEach(t => registerLink(lookupKey, t));
+                });
+
+                d3.selectAll(".menu-method.is-pinned").each(function() {
+                    const lookupKey = d3.select(this).attr("data-method-lookup");
+                    const sourceClassKey = lookupKey.split(">").slice(0,2).join(">"); 
+                    const targets = methodConnectivityData[lookupKey] || [];
+                    targets.forEach(t => registerLink(sourceClassKey, t));
+                });
+
+                codebaseData.forEach(d => {
+                    if (pinnedFiles.has(d.filename)) {
+                        d.fx = d.absoluteX;
+                        d.fy = d.absoluteY;
+                    } else if (!d.isDragging) {
+                        d.fx = null;
+                        d.fy = null;
+                    }
+                });
+
+                const activeNodes = codebaseData.filter(d => activePhysicsFiles.has(d.filename));
+                physicsSimulation.nodes(activeNodes);
+                physicsSimulation.force("customLinks").links(linkData);
+                physicsSimulation.alpha(0.3).restart(); 
+            }
+
+            function togglePhysics() {
+                isPhysicsEnabled = !isPhysicsEnabled;
+                const btn = d3.select("#btn-physics");
+                if (isPhysicsEnabled) {
+                    btn.classed("active-toggle", true).text("Physics Enabled");
+                    codebaseData.forEach(d => { d.x = d.absoluteX; d.y = d.absoluteY; });
+                    if (!physicsSimulation) {
+                        physicsSimulation = d3.forceSimulation([])
+                            .force("charge", d3.forceManyBody().strength(-1500).distanceMax(500)) 
+                            .force("collide", rectCollide(20))
+                            .force("customLinks", customLinkForce())
+                            .on("tick", () => {
+                                fileGroups.filter(d => activePhysicsFiles.has(d.filename)).attr("transform", d => {
+                                    if (d.fx == null) {
+                                        d.x = Math.max(-2000, Math.min(3000, d.x)); 
+                                        d.y = Math.max(-2000, Math.min(3000, d.y));
+                                    }
+                                    d.absoluteX = d.x; d.absoluteY = d.y;
+                                    return `translate(${d.absoluteX}, ${d.absoluteY})`;
+                                });
+                                codebaseData.filter(d => activePhysicsFiles.has(d.filename)).forEach(d => updateNodeCoordinates(d));
+                                updateAllLines();
+                            });
+                    }
+                    updatePhysicsLinks();
+                } else {
+                    btn.classed("active-toggle", false).text("Enable Physics");
+                    if (physicsSimulation) physicsSimulation.stop();
+                }
+            }
+
+            d3.select("#btn-physics").on("click", null).on("click", togglePhysics);
+
+            // --- SHOW ALL LOGIC ---
+            let isShowAllActive = false;
+            d3.select("#btn-show-all").on("click", null).on("click", function() {
+                isShowAllActive = !isShowAllActive;
+                const btn = d3.select(this);
+                
+                if (isShowAllActive) {
+                    btn.classed("active-toggle", true).text("Hide All");
+                    d3.selectAll(".class-node").each(function() {
+                        const node = d3.select(this);
+                        const lookupKey = node.attr("data-lookup");
+                        if (classConnectivityData[lookupKey] && classConnectivityData[lookupKey].length > 0 && !node.classed("is-class-pinned")) {
+                            node.classed("is-class-pinned", true); 
+                            node.select(".class-rect").style("stroke", "#fbbf24").style("stroke-width", "3px");
+                            drawClassLines(lookupKey.split(">")[0], lookupKey.split(">").slice(1).join(">"));
+                        }
+                    });
+                } else {
+                    btn.classed("active-toggle", false).text("Show All");
+                    d3.selectAll(".class-node.is-class-pinned").each(function() {
+                        const node = d3.select(this);
+                        if(!node.classed("is-frozen")) {
+                            node.classed("is-class-pinned", false);
+                            node.select(".class-rect").style("stroke", "#ffffff").style("stroke-width", "1.5px");
+                            const lookupKey = node.attr("data-lookup");
+                            if (!node.classed("is-expanded")) {
+                                removeClassLines(lookupKey.split(">")[0], lookupKey.split(">").slice(1).join(">"));
+                            }
+                        }
+                    });
+                }
+                updatePhysicsLinks();
+            });
+
+            // Condense Logic
+            d3.select("#btn-condense").on("click", null).on("click", () => {
+                if (isPhysicsEnabled) togglePhysics();
+                svg.transition().duration(750).call(zoomBehavior.transform, d3.zoomIdentity);
+
+                const sortedNodes = [...codebaseData].sort((a, b) => {
+                    const rowA = Math.round(a.absoluteY / 80); const rowB = Math.round(b.absoluteY / 80);
+                    if (rowA !== rowB) return rowA - rowB; return a.absoluteX - b.absoluteX;
+                });
+
+                let currentGapX = 30, currentGapY = 30, tStartX = 20, tStartY = 20;
+                let layoutValid = false, finalLayout = [];
+                
+                while (!layoutValid && currentGapX >= 5 && currentGapY >= 5) {
+                    let tempX = tStartX, tempY = tStartY, rowMaxH = 0, testLayout = [];
+                    for (let i = 0; i < sortedNodes.length; i++) {
+                        const node = sortedNodes[i];
+                        if (tempX + node.width > svgWidth - tStartX && tempX !== tStartX) {
+                            tempX = tStartX; tempY += rowMaxH + currentGapY; rowMaxH = 0;
+                        }
+                        testLayout.push({ filename: node.filename, targetX: tempX, targetY: tempY });
+                        tempX += node.width + currentGapX; rowMaxH = Math.max(rowMaxH, node.height);
+                    }
+                    if (tempY + rowMaxH + 20 <= svgHeight) { layoutValid = true; finalLayout = testLayout; } 
+                    else { currentGapX -= 5; currentGapY -= 5; finalLayout = testLayout; }
+                }
+
+                const transition = svg.transition().duration(750).ease(d3.easeCubicInOut);
+                fileGroups.transition(transition)
+                    .tween("position", function(d) {
+                        const layoutInfo = finalLayout.find(l => l.filename === d.filename);
+                        const interpolateX = d3.interpolate(d.absoluteX, layoutInfo.targetX);
+                        const interpolateY = d3.interpolate(d.absoluteY, layoutInfo.targetY);
+                        return function(t) {
+                            d.absoluteX = interpolateX(t); d.absoluteY = interpolateY(t);
+                            d3.select(this).attr("transform", `translate(${d.absoluteX}, ${d.absoluteY})`);
+                            updateNodeCoordinates(d);
+                        };
+                    });
+                transition.tween("lines", () => function(t) { updateAllLines(); });
+            });
+        }
+
+        // Initialize the first view
+        rebuildVisualization();
+
+    </script>
+</body>
+</html>
