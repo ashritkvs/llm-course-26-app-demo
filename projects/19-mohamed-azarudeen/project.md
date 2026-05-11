@@ -1,5 +1,5 @@
 ---
-slug: ai-data-viz-agent
+slug: 19-mohamed-azarudeen
 title: DataLens AI — Natural Language Data Visualization Agent
 students:
   - "Mohamed Azarudeen"
@@ -10,17 +10,16 @@ tags:
   - react
   - e2b
   - sandboxed-execution
-category: data-science
+category: data-analysis
 tagline: Ask your data anything in plain English — get instant, sandboxed visualizations powered by local LLMs.
 featuredEligible: true
 semester: "Spring 2026"
 shortTitle: "DataLens AI"
 studentId: "116514556"
 videoUrl: "https://drive.google.com/file/d/1ZrVg6_y_JkN5OIs9vD4EWyW7ocJ8UCB3/view?usp=drive_link"
-thumbnail: "https://drive.google.com/file/d/1SjsXGjxF20FwZIwQaKqeRmcsabvoDdi7/view?usp=sharing"
+thumbnail: /thumbnails/19-mohamed-azarudeen.png
 githubUrl: "https://github.com/AzaRKazar/llm-course-26-app-demo/tree/main/projects/19-mohamed-azarudeen/src"
 ---
-
 ## Problem
 
 Data analysis is powerful but inaccessible. Business users and non-programmers sit on rich CSV datasets but cannot query them without SQL or Python knowledge. Existing tools either require cloud APIs (privacy concerns) or complex setup. Even simple questions like *"which city has the most customers?"* demand code.
